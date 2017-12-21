@@ -78,5 +78,7 @@ public interface ExecutorLoader {
 	public Pair<Props, Props> fetchExecutionJobProps(int execId, String jobId) throws ExecutorManagerException;
 
 	public int removeExecutionLogsByTime(long millis) throws ExecutorManagerException;
+
+	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception;
 	
 }

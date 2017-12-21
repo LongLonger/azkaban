@@ -31,6 +31,13 @@ import azkaban.executor.mail.DefaultMailCreator;
 import azkaban.utils.JSONUtils;
 
 public class HttpRequestUtils {
+	/**
+	 * zhongshu-comment
+	 * 解析http请求里的参数，将参数封装到ExecutionOptions对象中
+	 * @param req
+	 * @return
+	 * @throws ServletException
+	 */
 	public static ExecutionOptions parseFlowOptions(HttpServletRequest req) throws ServletException {
 		ExecutionOptions execOptions = new ExecutionOptions();
 		
@@ -108,6 +115,20 @@ public class HttpRequestUtils {
 				execOptions.setDisabledJobs(disabledList);
 			}
 		}
+
+		/*
+		zhongshu-comment
+		added by zhongshu，为了不影响原有的代码所以加了个try-catch
+		 */
+		try {
+			if (hasParam(req, "rerunExecid")) {
+				String rerunExecid = getParam(req, "rerunExecid");
+				execOptions.setRerunExecid(rerunExecid);
+			}
+		} catch (Exception e) {
+
+		}
+
 		return execOptions;
 	}
 	

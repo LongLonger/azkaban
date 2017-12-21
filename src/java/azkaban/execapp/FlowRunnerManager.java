@@ -55,6 +55,9 @@ import azkaban.utils.JSONUtils;
 import azkaban.utils.Pair;
 import azkaban.utils.Props;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+
 /**
  * Execution manager for the server side execution.
  * 
@@ -359,7 +362,9 @@ public class FlowRunnerManager implements EventListener {
 	}
 	
 	
-	public void submitFlow(int execId) throws ExecutorManagerException {
+	//zhongshu-comment 重点代码，执行flow
+	//zhongshu-comment modified by zhongshu，我给submitFlow()方法多加了个参数：HttpServletRequest req
+	public void submitFlow(HttpServletRequest req, int execId) throws ExecutorManagerException {
 		// Load file and submit
 		if (runningFlows.containsKey(execId)) {
 			throw new ExecutorManagerException("Execution " + execId + " is already running.");
@@ -400,7 +405,8 @@ public class FlowRunnerManager implements EventListener {
 				throw new ExecutorManagerException("Failed to set the number of job threads " + options.getFlowParameters().get("flow.num.job.threads") + " for flow " + execId, e);
 			}
 		}
-		
+
+		//zhongshu-comment FlowRunner是一个线程，里面的run()方法就是具体执行flow的代码了
 		FlowRunner runner = new FlowRunner(flow, executorLoader, projectLoader, jobtypeManager);
 		runner.setFlowWatcher(watcher)
 			.setJobLogSettings(jobLogChunkSize, jobLogNumFiles)
@@ -408,6 +414,14 @@ public class FlowRunnerManager implements EventListener {
 			.setGlobalProps(globalProps)
 			.setNumJobThreads(numJobThreads)
 			.addListener(this);
+
+		//zhongshu-comment added by zhongshu
+		try {
+			String rerunExecid = req.getParameter(ExecutionOptions.RERUN_EXECID);
+			runner.setRerunExecid(rerunExecid);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		/*
 		zhongshu-comment 就是在这个地方加代码
@@ -420,8 +434,7 @@ public class FlowRunnerManager implements EventListener {
 			我会在conf的同级目录下新增一个scripts目录，然后执行myshell.sh的时候拼上相对路径 ../scripts/myshell.sh
 		 */
 		try {
-
-
+			//todo
 //			runner.setGlobalProps("todo");
 		} catch (Exception e) {
 
@@ -435,6 +448,13 @@ public class FlowRunnerManager implements EventListener {
 		
 		// Finally, queue the sucker.
 		runningFlows.put(execId, runner);
+
+		/*
+		zhongshu-comment 将runner线程加到队列中等待被执行，
+		有个问题，flow的submitTime和startTime，我们应该是用submitTime，因为当队列太多线程导致flow提交后等待一段时间才执行，就导致job数据的时间范围就往后推了
+		todo，找出submitTime，数据库execution_flows表有submit_time字段，找出来是在哪写进去的，找到了：
+		全局搜一下submit_time，在JdbcExecutorLoader.uploadExecutableFlow()找到了submit_time变量的赋值了
+		 */
 		flowQueue.add(runner);
 	}
 	

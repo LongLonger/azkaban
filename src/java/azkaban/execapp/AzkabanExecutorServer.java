@@ -104,8 +104,10 @@ public class AzkabanExecutorServer {
 			executorGlobalProps = new Props();
 		}
 		else {
+			//zhongshu-comment 重点代码，读取conf/global.properties，只在启动azkaban-executor时读取一遍，所以修改了文件后要重启才生效
 			executorGlobalProps = new Props(null, globalPropsPath);
 		}
+		//zhongshu-comment
 		runnerManager.setGlobalProps(executorGlobalProps);
 		
 		configureMBeanServer();

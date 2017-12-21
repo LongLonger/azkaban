@@ -483,7 +483,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			}
 		}
 	}
-	
+	//zhongshu-comment
 	@Override
 	public String submitExecutableFlow(ExecutableFlow exflow, String userId) throws ExecutorManagerException {
 		synchronized(exflow) {
@@ -522,7 +522,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 					message = "Flow " + flowId + " is already running with exec id " + StringUtils.join(running, ",") +". Will execute concurrently. \n";
 				}
 			}
-			
+			//zhongshu-comment 在这里设置execution flow id，没执行一个execution就会生成新的id
 			// The exflow id is set by the loader. So it's unavailable until after this call.
 			executorLoader.uploadExecutableFlow(exflow);
 			
@@ -530,7 +530,11 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			ExecutionReference reference = new ExecutionReference(exflow.getExecutionId(), executorHost, executorPort);
 			executorLoader.addActiveExecutableReference(reference);
 			try {
-				callExecutorServer(reference,	ConnectorParams.EXECUTE_ACTION);
+				//zhongshu-comment: added by zhongshu
+				Pair<String, String> pair = new Pair<>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
+
+				//zhongshu-comment 关键代码，向executor server发http请求执行flow
+				callExecutorServer(reference,	ConnectorParams.EXECUTE_ACTION, pair);
 				runningFlows.put(exflow.getExecutionId(), new Pair<ExecutionReference, ExecutableFlow>(reference, exflow));
 				
 				message += "Execution submitted successfully with exec id " + exflow.getExecutionId();
@@ -586,7 +590,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			throw new ExecutorManagerException(e);
 		}
 	}
-	//zhongshu-comment 在这个函数向executor发起flow execution请求
+	//zhongshu-comment 在这个函数向executor发起flow请求
 	private Map<String, Object> callExecutorServer(String host, int port, String action, Integer executionId, String user, Pair<String,String> ... params) throws IOException {
 		URIBuilder builder = new URIBuilder();
 		builder.setScheme("http")
@@ -623,7 +627,8 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 		HttpGet httpget = new HttpGet(uri);
 		String response = null;
 		try {
-			response = httpclient.execute(httpget, responseHandler);//zhongshu-comment 向executor提交执行flow execution的请求
+			//zhongshu-comment 重点代码，向executor提交执行flow的请求。具体类是azkaban.execapp.ExecutorServlet
+			response = httpclient.execute(httpget, responseHandler);
 		} catch (IOException e) {
 			throw e;
 		}
@@ -1149,7 +1154,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			return true;
 		}
 	}
-	
+
 	@Override
 	public int getExecutableFlows(
 			int projectId, 

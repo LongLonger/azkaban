@@ -62,7 +62,14 @@ public class ExecutionOptions {
 	private String concurrentOption = CONCURRENT_OPTION_IGNORE;
 	private String mailCreator = DefaultMailCreator.DEFAULT_MAIL_CREATOR;
 	private Map<String, String> flowParameters = new HashMap<String, String>();
-	
+
+	/**
+	 * zhongshu-comment
+	 * added by zhongshu
+	 */
+	private String rerunExecid;
+	public static final String RERUN_EXECID = "rerunExecid";
+
 	public enum FailureAction {
 		FINISH_CURRENTLY_RUNNING,
 		CANCEL_ALL,
@@ -180,7 +187,15 @@ public class ExecutionOptions {
 	public void setDisabledJobs(List<Object> disabledJobs) {
 		initiallyDisabledJobs = disabledJobs;
 	}
-	
+
+	public String getRerunExecid() {
+		return rerunExecid;
+	}
+
+	public void setRerunExecid(String rerunExecid) {
+		this.rerunExecid = rerunExecid;
+	}
+
 	public Map<String,Object> toObject() {
 		HashMap<String,Object> flowOptionObj = new HashMap<String,Object>();
 

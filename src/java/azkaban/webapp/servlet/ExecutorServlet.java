@@ -92,7 +92,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 		HashMap<String, Object> ret = new HashMap<String, Object>();
 		String ajaxName = getParam(req, "ajax");
 		
-		if (hasParam(req, "execid")) {
+		if (hasParam(req, "execid")) { //zhongshu-comment execid=execution id，
 			int execid = getIntParam(req, "execid");
 			ExecutableFlow exFlow = null;
 
@@ -806,6 +806,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 		options.setMailCreator(flow.getMailCreator());
 
 		try {
+			//zhongshu-comment 关键代码
 			String message = executorManager.submitExecutableFlow(exflow, user.getUserId());
 			ret.put("message", message);
 		}

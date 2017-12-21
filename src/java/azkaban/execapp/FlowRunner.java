@@ -31,6 +31,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
+import azkaban.executor.*;
+import org.apache.commons.dbutils.QueryRunner;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
 import org.apache.log4j.Layout;
@@ -42,14 +44,7 @@ import azkaban.execapp.event.Event.Type;
 import azkaban.execapp.event.EventHandler;
 import azkaban.execapp.event.EventListener;
 import azkaban.execapp.event.FlowWatcher;
-import azkaban.executor.ExecutableFlow;
-import azkaban.executor.ExecutableFlowBase;
-import azkaban.executor.ExecutableNode;
-import azkaban.executor.ExecutionOptions;
 import azkaban.executor.ExecutionOptions.FailureAction;
-import azkaban.executor.ExecutorLoader;
-import azkaban.executor.ExecutorManagerException;
-import azkaban.executor.Status;
 import azkaban.flow.FlowProps;
 import azkaban.jobtype.JobTypeManager;
 import azkaban.project.ProjectLoader;
@@ -119,7 +114,9 @@ public class FlowRunner extends EventHandler implements Runnable {
 	// The following is state that will trigger a retry of all failed jobs
 	private boolean retryFailedJobs = false;
 	
-	
+	//zhongshu-comment added by zhongshu
+	private String rerunExecid = "";
+
 	/**
 	 * Constructor. 
 	 * This will create its own ExecutorService for thread pools
@@ -162,6 +159,14 @@ public class FlowRunner extends EventHandler implements Runnable {
 		this.finishedNodes = new SwapQueue<ExecutableNode>();
 	}
 
+	public String getRerunExecid() {
+		return rerunExecid;
+	}
+
+	public void setRerunExecid(String rerunExecid) {
+		this.rerunExecid = rerunExecid;
+	}
+
 	public FlowRunner setFlowWatcher(FlowWatcher watcher) {
 		this.watcher = watcher;
 		return this;
@@ -194,11 +199,13 @@ public class FlowRunner extends EventHandler implements Runnable {
 	}
 	
 	public void run() {
+
 		try {
 			if (this.executorService == null) {
 				this.executorService = Executors.newFixedThreadPool(numJobThreads);
 			}
-			setupFlowExecution();
+			//zhongshu-comment 重点代码，加载Runtime param参数，包括我加的custom.day、custom.hour
+			setupFlowExecution(rerunExecid);
 			flow.setStartTime(System.currentTimeMillis());
 			
 			updateFlowReference();
@@ -233,14 +240,19 @@ public class FlowRunner extends EventHandler implements Runnable {
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void setupFlowExecution() {
+	private void setupFlowExecution(String rerunExecid) throws Exception {
 		int projectId = flow.getProjectId();
 		int version = flow.getVersion();
 		String flowId = flow.getFlowId();
 		
+		//zhongshu-comment 重点代码
 		// Add a bunch of common azkaban properties
 		Props commonFlowProps = PropsUtils.addCommonFlowProperties(this.globalProps, flow);
-		
+
+		//zhongshu-comment added by zhongshu
+		executorLoader.querySubmitTimeByRerunId(rerunExecid, commonFlowProps);
+
+
 		if (flow.getJobSource() != null) {
 			String source = flow.getJobSource();
 			Props flowProps = sharedProps.get(source);
@@ -271,7 +283,8 @@ public class FlowRunner extends EventHandler implements Runnable {
 		flowRunnerThread = Thread.currentThread();
 		flowRunnerThread.setName("FlowRunner-exec-" + flow.getExecutionId());
 	}
-	
+
+
 	private void updateFlowReference() throws ExecutorManagerException {
 		logger.info("Update active reference");
 		if (!executorLoader.updateExecutableReference(execId, System.currentTimeMillis())) {

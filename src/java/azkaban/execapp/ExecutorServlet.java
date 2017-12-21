@@ -69,7 +69,7 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 		OutputStream stream = resp.getOutputStream();
 		mapper.writeValue(stream, obj);
 	}
-
+	//zhongshu-comment 重点代码
 	@Override
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		HashMap<String,Object> respMap= new HashMap<String,Object>();
@@ -103,6 +103,7 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 						handleFetchAttachmentsEvent(execid, req, resp, respMap);
 					}
 					else if (action.equals(EXECUTE_ACTION)) {
+						//zhongshu-comment 重点代码，执行flow
 						handleAjaxExecute(req, respMap, execid);
 					}
 					else if (action.equals(STATUS_ACTION)) {
@@ -273,7 +274,8 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 	
 	private void handleAjaxExecute(HttpServletRequest req, Map<String, Object> respMap, int execId) throws ServletException {
 		try {
-			flowRunnerManager.submitFlow(execId);
+			//zhongshu-comment modified by zhongshu，我给submitFlow()方法多加了个参数：HttpServletRequest req
+			flowRunnerManager.submitFlow(req, execId);
 		} catch (ExecutorManagerException e) {
 			e.printStackTrace();
 			logger.error(e);

@@ -24,13 +24,10 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
+import azkaban.flow.CommonJobProperties;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -86,11 +83,11 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			ExecutableFlow flow, EncodingType encType) 
 			throws ExecutorManagerException, IOException {
 		final String INSERT_EXECUTABLE_FLOW = 
-				"INSERT INTO execution_flows " + 
+				"INSERT INTO execution_flows " +  //zhongshu-comment 往表中插入一条数据，一条数据对应一次execution
 						"(project_id, flow_id, version, status, submit_time, submit_user, update_time) " + 
 						"values (?,?,?,?,?,?,?)";
 		QueryRunner runner = new QueryRunner();
-		long submitTime = System.currentTimeMillis();
+		long submitTime = System.currentTimeMillis();//zhongshu-comment 这就是submit_time
 
 		long id;
 		try {
@@ -106,7 +103,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 					flow.getSubmitUser(), 
 					submitTime);
 			connection.commit();
-			id = runner.query(
+			id = runner.query( //zhongshu-comment： execution id是自增的，insert完再去读取一下
 					connection, LastInsertID.LAST_INSERT_ID, new LastInsertID());
 
 			if (id == -1l) {
@@ -255,7 +252,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			throw new ExecutorManagerException("Error fetching num executions", e);
 		}
 	}
-	
+	//zhongshu-comment
 	@Override
 	public List<ExecutableFlow> fetchFlowHistory(int projectId, String flowId, 
 			int skip, int num) throws ExecutorManagerException {
@@ -1070,7 +1067,54 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			return attachmentsJson;
 		}
 	}
-	
+
+	//zhongshu-comment
+	private static class FetchSubmitTimeHandler
+			implements ResultSetHandler<Long> {
+		private static String SQL =
+				"SELECT submit_time FROM execution_flows WHERE exec_id=?";
+
+		@Override
+		public Long handle(ResultSet rs) throws SQLException {
+			long submitTime = -1;
+			if (rs.next()) {
+				try {
+					submitTime = rs.getLong("submit_time");
+				}
+				catch (Exception e) {
+					throw new SQLException("query submit_time fail! ", e);
+				}
+			}
+			return submitTime;
+		}
+	}
+
+	//zhongshu-comment
+	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception {
+		if (rerunExecid != null && !rerunExecid.trim().equals("")) {
+			//查询数据库的execution_flows表的submit_time字段
+			QueryRunner runner = createQueryRunner();
+			long submitTime = runner.query(FetchSubmitTimeHandler.SQL, new JdbcExecutorLoader.FetchSubmitTimeHandler());
+
+			if (submitTime == -1) {
+				throw new Exception("query submit time fail!");
+			} else {
+				Calendar cal = Calendar.getInstance();//zhongshu-comment: added by zhongshu
+				cal.setTimeInMillis(submitTime);
+
+				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
+				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
+
+				commonFlowProps.put(CommonJobProperties.CUSTOM_DAY, sdf1.format(cal.getTime()));
+				commonFlowProps.put(CommonJobProperties.CUSTOM_HOUR, sdf2.format(cal.getTime()));
+
+				cal.add(Calendar.HOUR_OF_DAY, -1);
+				commonFlowProps.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf2.format(cal.getTime()));
+			}
+
+		}
+	}
+
 	private static class FetchExecutableJobPropsHandler 
 			implements ResultSetHandler<Pair<Props, Props>> {
 		private static String FETCH_OUTPUT_PARAM_EXECUTABLE_NODE = 
