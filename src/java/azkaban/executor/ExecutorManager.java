@@ -586,13 +586,13 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			throw new ExecutorManagerException(e);
 		}
 	}
-	
+	//zhongshu-comment 在这个函数向executor发起flow execution请求
 	private Map<String, Object> callExecutorServer(String host, int port, String action, Integer executionId, String user, Pair<String,String> ... params) throws IOException {
 		URIBuilder builder = new URIBuilder();
 		builder.setScheme("http")
 			.setHost(host)
 			.setPort(port)
-			.setPath("/executor");
+			.setPath("/executor");//zhongshu-comment 在代码src目录中搜索/executor就能搜索到该url对应的handler，找到两个，不知是哪个
 
 		builder.setParameter(ConnectorParams.ACTION_PARAM, action);
 		
@@ -623,7 +623,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 		HttpGet httpget = new HttpGet(uri);
 		String response = null;
 		try {
-			response = httpclient.execute(httpget, responseHandler);
+			response = httpclient.execute(httpget, responseHandler);//zhongshu-comment 向executor提交执行flow execution的请求
 		} catch (IOException e) {
 			throw e;
 		}

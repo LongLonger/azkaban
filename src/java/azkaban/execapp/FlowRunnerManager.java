@@ -408,7 +408,26 @@ public class FlowRunnerManager implements EventListener {
 			.setGlobalProps(globalProps)
 			.setNumJobThreads(numJobThreads)
 			.addListener(this);
-		
+
+		/*
+		zhongshu-comment 就是在这个地方加代码
+		加个try-catch包住，即使报错了，也不影响原来的代码
+
+		1、每次执行flow的时候都去读一次${azkaban-executor-server}/conf/global.properties文件
+		2、global.properties文件里的属性值可以配置shell脚本，我用java代码去执行shell脚本，如果是shell脚本的话就加个标识：SHELL_
+			例如我想获取当前时间值，例如：custom.current.date=SHELL_date，然后我就会去掉SHELL_这部分，执行date命令
+		3、todo 可以考虑属性值是一个shell脚本及其路径，例如custom.current.myparam=SHELL_myshell.sh
+			我会在conf的同级目录下新增一个scripts目录，然后执行myshell.sh的时候拼上相对路径 ../scripts/myshell.sh
+		 */
+		try {
+
+
+//			runner.setGlobalProps("todo");
+		} catch (Exception e) {
+
+		}
+
+
 		// Check again.
 		if (runningFlows.containsKey(execId)) {
 			throw new ExecutorManagerException("Execution " + execId + " is already running.");

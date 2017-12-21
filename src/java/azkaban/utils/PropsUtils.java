@@ -18,13 +18,8 @@ package azkaban.utils;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -218,6 +213,7 @@ public class PropsUtils {
 		props.put(CommonJobProperties.FLOW_UUID, UUID.randomUUID().toString());
 
 		DateTime loadTime = new DateTime();
+		Calendar cal = Calendar.getInstance();//zhongshu-comment: added by zhongshu
 
 		props.put(CommonJobProperties.FLOW_START_TIMESTAMP, loadTime.toString());
 		props.put(CommonJobProperties.FLOW_START_YEAR, loadTime.toString("yyyy"));
@@ -228,6 +224,21 @@ public class PropsUtils {
 		props.put(CommonJobProperties.FLOW_START_SECOND, loadTime.toString("ss"));
 		props.put(CommonJobProperties.FLOW_START_MILLISSECOND, loadTime.toString("SSS"));
 		props.put(CommonJobProperties.FLOW_START_TIMEZONE, loadTime.toString("ZZZZ"));
+
+		try {
+			//特意加了try-catch，即使我加的代码抛异常，也不影响原来的代码运行
+			//zhongshu-comment: added by zhongshu
+			props.put(CommonJobProperties.CUSTOM_DAY, loadTime.toString("yyyyMMdd"));
+			props.put(CommonJobProperties.CUSTOM_HOUR, loadTime.toString("yyyyMMddHH"));
+
+			cal.add(Calendar.HOUR_OF_DAY, -1);
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");
+
+			props.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf.format(cal.getTime()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return props;
 	}
 

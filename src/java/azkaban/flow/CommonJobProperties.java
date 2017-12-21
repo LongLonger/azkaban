@@ -16,6 +16,11 @@
 
 package azkaban.flow;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class CommonJobProperties {
 	/*
 	 * The following are Common properties that can be set in a job file
@@ -125,4 +130,34 @@ public class CommonJobProperties {
 	public static final String FLOW_START_SECOND = "azkaban.flow.start.second";
 	public static final String FLOW_START_MILLISSECOND = "azkaban.flow.start.milliseconds";
 	public static final String FLOW_START_TIMEZONE = "azkaban.flow.start.timezone";
+
+	/**
+	 * added by zhongshu, my email zhongshuhuang215039@sohu-inc.com
+	 */
+	public static final String CUSTOM_DAY= "custom.day";
+	public static final String CUSTOM_HOUR = "custom.hour";
+	public static final String CUSTOM_LAST_HOUR = "custom.last.hour";
+
+	public static void main(String[] args) throws IOException {
+		Process pcs = Runtime.getRuntime().exec("date +%Y%m%d");
+		// 定义shell返回值
+		String result = null;
+
+		// 获取shell返回流
+		BufferedInputStream in = new BufferedInputStream(pcs.getInputStream());
+		// 字符流转换字节流
+		BufferedReader br = new BufferedReader(new InputStreamReader(in));
+		// 这里也可以输出文本日志
+
+		String lineStr;
+		while ((lineStr = br.readLine()) != null) {
+			result = lineStr;
+		}
+		// 关闭输入流
+		br.close();
+		in.close();
+
+		//输出结果示例：20171221
+		System.out.println("==============================" + result);
+	}
 }
