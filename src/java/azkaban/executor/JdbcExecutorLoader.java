@@ -1076,7 +1076,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 		@Override
 		public Long handle(ResultSet rs) throws SQLException {
-			long submitTime = -1;
+			System.out.println();
+			long submitTime = -12345;
 			if (rs.next()) {
 				try {
 					submitTime = rs.getLong("submit_time");
@@ -1091,29 +1092,34 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 	//zhongshu-comment
 	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception {
+		System.out.println("haha-->0");
 		if (rerunExecid != null && !rerunExecid.trim().equals("")) {
 			//查询数据库的execution_flows表的submit_time字段
+			System.out.println("haha-->1");
 			QueryRunner runner = createQueryRunner();
-			long submitTime = runner.query(FetchSubmitTimeHandler.SQL, new JdbcExecutorLoader.FetchSubmitTimeHandler());
-
-			if (submitTime == -1) {
+			System.out.println("haha-->2");
+			long submitTime = runner.query(FetchSubmitTimeHandler.SQL, new JdbcExecutorLoader.FetchSubmitTimeHandler(), rerunExecid);//zhongshu-comment 卡在这里
+			System.out.println("haha-->3");
+			if (submitTime == -12345) {
+				System.out.println("haha-->4");
 				throw new Exception("query submit time fail!");
 			} else {
+				System.out.println("haha-->5");
 				Calendar cal = Calendar.getInstance();//zhongshu-comment: added by zhongshu
 				cal.setTimeInMillis(submitTime);
-
+				System.out.println("haha-->6");
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
 				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
 				SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHHmm");
-
+				System.out.println("haha-->7");
 				commonFlowProps.put(CommonJobProperties.CUSTOM_DAY, sdf1.format(cal.getTime()));
 				commonFlowProps.put(CommonJobProperties.CUSTOM_HOUR, sdf2.format(cal.getTime()));
 				commonFlowProps.put(CommonJobProperties.CUSTOM_MINUTE, sdf3.format(cal.getTime()));
-
+				System.out.println("haha-->8");
 				cal.add(Calendar.HOUR_OF_DAY, -1);
 				commonFlowProps.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf2.format(cal.getTime()));
+				System.out.println("haha-->9");
 			}
-
 		}
 	}
 

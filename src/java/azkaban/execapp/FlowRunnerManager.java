@@ -457,11 +457,12 @@ public class FlowRunnerManager implements EventListener {
 		 */
 		flowQueue.add(runner);
 	}
-	
+	//zhongshu-comment
 	private void setupFlow(ExecutableFlow flow) throws ExecutorManagerException {
 		int execId = flow.getExecutionId();
 		File execPath = new File(executionDirectory, String.valueOf(execId));
 		flow.setExecutionPath(execPath.getPath());
+		//zhongshu-comment 这一步有被执行
 		logger.info("Flow " + execId + " submitted with path " + execPath.getPath());
 		execPath.mkdirs();
 		
@@ -555,7 +556,7 @@ public class FlowRunnerManager implements EventListener {
 			runningFlows.remove(flow.getExecutionId());
 		}
 	}
-	
+	//zhongshu-comment 报错的地方：Flow log file doesn't exist.
 	public LogData readFlowLogs(int execId, int startByte, int length) throws ExecutorManagerException {
 		FlowRunner runner = runningFlows.get(execId);
 		if (runner == null) {
@@ -570,7 +571,7 @@ public class FlowRunnerManager implements EventListener {
 						throw new ExecutorManagerException("Execution dir file doesn't exist. Probably has beend deleted");
 					}
 					
-					File logFile = runner.getFlowLogFile();
+					File logFile = runner.getFlowLogFile();//zhongshu-comment 这里是重点
 					if (logFile != null && logFile.exists()) {
 						return FileIOUtils.readUtf8File(logFile, startByte, length);
 					}

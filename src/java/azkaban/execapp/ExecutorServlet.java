@@ -91,12 +91,12 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 				else {
 					int execid = Integer.parseInt(getParam(req, EXECID_PARAM));
 					String user = getParam(req, USER_PARAM, null);
-					
+					//zhongshu-comment
 					logger.info("User " + user + " has called action " + action + " on " + execid);
 					if (action.equals(METADATA_ACTION)) {
 						handleFetchMetaDataEvent(execid, req, resp, respMap);
 					}
-					else if (action.equals(LOG_ACTION)) { 
+					else if (action.equals(LOG_ACTION)) { //zhongshu-comment
 						handleFetchLogEvent(execid, req, resp, respMap);
 					}
 					else if (action.equals(ATTACHMENTS_ACTION)) { 
@@ -172,7 +172,7 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 			respMap.put("error", e.getMessage());
 		}
 	}
-	
+	//zhongshu-comment 报错的地方：Flow log file doesn't exist.
 	private void handleFetchLogEvent(
 			int execId, 
 			HttpServletRequest req, 
@@ -185,7 +185,7 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 		resp.setContentType("text/plain");
 		resp.setCharacterEncoding("utf-8");
 		
-		if (type.equals("flow")) {
+		if (type.equals("flow")) {//zhongshu-comment 走这里
 			LogData result;
 			try {
 				result = flowRunnerManager.readFlowLogs(execId, startByte, length);
