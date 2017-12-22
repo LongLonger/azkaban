@@ -23,6 +23,8 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.log4j.Logger;
 import java.sql.PreparedStatement;
 import java.sql.Connection;
+import java.sql.SQLFeatureNotSupportedException;
+
 import azkaban.utils.Props;
 
 public class DataSourceUtils {
@@ -150,7 +152,12 @@ public class DataSourceUtils {
 		public String getDBType() {
 			return "mysql";
 		}
-		
+
+		@Override
+		public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+			return null;
+		}
+
 		private class MonitorThread extends Thread {
 			private static final long MONITOR_THREAD_WAIT_INTERVAL_MS = 30*1000;
 			private boolean shutdown = false;
@@ -218,6 +225,11 @@ public class DataSourceUtils {
 		@Override
 		public String getDBType() {
 			return "h2";
+		}
+
+		@Override
+		public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
+			return null;
 		}
 	}
 	
