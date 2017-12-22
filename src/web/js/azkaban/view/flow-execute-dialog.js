@@ -47,7 +47,12 @@ azkaban.FlowExecuteDialogView = Backbone.View.extend({
 
 	render: function() {
 	},
-
+	getUrlParam:function(key) {
+ 		 var r, re;
+  		re = new RegExp("[?|&]" + key + "=(.*?)(&|#|$)", "i");
+  		r = window.location.search.match(re);
+  	return r && decodeURIComponent(r[1]) || null;
+	},
 	getExecutionOptionData: function() {
 		var failureAction = $('#failure-action').val();
 		var failureEmails = $('#failure-emails').val();
@@ -56,7 +61,7 @@ azkaban.FlowExecuteDialogView = Backbone.View.extend({
 		var notifyFailureLast = $('#notify-failure-last').is(':checked');
 		var failureEmailsOverride = $("#override-failure-emails").is(':checked');
 		var successEmailsOverride = $("#override-success-emails").is(':checked');
-
+		var execid = this.getUrlParam('execid')?this.getUrlParam('execid'):'';
 		var flowOverride = {};
 		var editRows = $(".editRow");
 		for (var i = 0; i < editRows.length; ++i) {
@@ -76,6 +81,8 @@ azkaban.FlowExecuteDialogView = Backbone.View.extend({
 		var executingData = {
 			projectId: projectId,
 			project: this.projectName,
+			rerunExecid: execid,
+			isRerun: "true",
 			ajax: "executeFlow",
 			flow: this.flowId,
 			disabled: JSON.stringify(disabledList),

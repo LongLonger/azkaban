@@ -153,6 +153,7 @@ public class DataSourceUtils {
 			return "mysql";
 		}
 
+		//zhongshu-comment 为了不报错，所以实现了该方法，空实现
 		@Override
 		public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
 			return null;
@@ -227,6 +228,7 @@ public class DataSourceUtils {
 			return "h2";
 		}
 
+		//zhongshu-comment 为了不报错，所以实现了该方法，空实现
 		@Override
 		public java.util.logging.Logger getParentLogger() throws SQLFeatureNotSupportedException {
 			return null;
