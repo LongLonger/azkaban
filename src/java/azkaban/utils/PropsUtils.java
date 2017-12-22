@@ -230,6 +230,7 @@ public class PropsUtils {
 			//zhongshu-comment: added by zhongshu
 			props.put(CommonJobProperties.CUSTOM_DAY, loadTime.toString("yyyyMMdd"));
 			props.put(CommonJobProperties.CUSTOM_HOUR, loadTime.toString("yyyyMMddHH"));
+			props.put(CommonJobProperties.CUSTOM_MINUTE, loadTime.toString("yyyyMMddHHmm"));
 
 			cal.add(Calendar.HOUR_OF_DAY, -1);
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH");

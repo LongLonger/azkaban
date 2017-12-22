@@ -1104,9 +1104,11 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
 				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
+				SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHHmm");
 
 				commonFlowProps.put(CommonJobProperties.CUSTOM_DAY, sdf1.format(cal.getTime()));
 				commonFlowProps.put(CommonJobProperties.CUSTOM_HOUR, sdf2.format(cal.getTime()));
+				commonFlowProps.put(CommonJobProperties.CUSTOM_MINUTE, sdf3.format(cal.getTime()));
 
 				cal.add(Calendar.HOUR_OF_DAY, -1);
 				commonFlowProps.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf2.format(cal.getTime()));
