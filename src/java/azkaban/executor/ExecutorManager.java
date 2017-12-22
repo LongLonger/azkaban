@@ -531,7 +531,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			executorLoader.addActiveExecutableReference(reference);
 			try {
 				//zhongshu-comment: added by zhongshu
-				Pair<String, String> pair = new Pair<>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
+				Pair<String, String> pair = new Pair<String, String>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
 
 				//zhongshu-comment 关键代码，向executor server发http请求执行flow
 				callExecutorServer(reference,	ConnectorParams.EXECUTE_ACTION, pair);
