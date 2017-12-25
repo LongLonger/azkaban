@@ -199,19 +199,15 @@ public class FlowRunner extends EventHandler implements Runnable {
 	}
 	
 	public void run() {
-		System.out.println("FlowRunner start_1");
 		try {
 			if (this.executorService == null) {
 				this.executorService = Executors.newFixedThreadPool(numJobThreads);
 			}
 
-			System.out.println("zhongshu--->1");
 			//zhongshu-comment 重点代码，加载Runtime param参数，包括我加的custom.day、custom.hour
 			setupFlowExecution(rerunExecid);//zhongshu-comment 应该是执行到这一步就报错了
 
-			System.out.println("zhongshu==>setStartTime_1");
 			flow.setStartTime(System.currentTimeMillis());
-			System.out.println("zhongshu==>setStartTime_2");
 
 			updateFlowReference();
 			
@@ -221,9 +217,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 			loadAllProperties();
 
 			this.fireEventListeners(Event.create(this, Type.FLOW_STARTED));
-			System.out.println("zhongshu--->998");
 			runFlow();
-			System.out.println("zhongshu--->999");
 		} catch (Throwable t) {
 			if (logger != null) {
 				logger.error("An error has occurred during the running of the flow. Quiting.", t);
@@ -252,57 +246,43 @@ public class FlowRunner extends EventHandler implements Runnable {
 		int version = flow.getVersion();
 		String flowId = flow.getFlowId();
 
-		System.out.println("zhongshu-->2");
 		//zhongshu-comment 重点代码
 		// Add a bunch of common azkaban properties
 		Props commonFlowProps = PropsUtils.addCommonFlowProperties(this.globalProps, flow);
 
-		System.out.println("zhongshu-->3");
 		//zhongshu-comment added by zhongshu
 		executorLoader.querySubmitTimeByRerunId(rerunExecid, commonFlowProps);//zhongshu-comment 我擦，就是卡在这一步
 
-		System.out.println("zhongshu-->4");
 		if (flow.getJobSource() != null) {
-			System.out.println("zhongshu-->5");
 			String source = flow.getJobSource();
 			Props flowProps = sharedProps.get(source);
 			flowProps.setParent(commonFlowProps);
 			commonFlowProps = flowProps;
-			System.out.println("zhongshu-->6");
 		}
 
-		System.out.println("zhongshu-->7");
 		// If there are flow overrides, we apply them now.
 		Map<String,String> flowParam = flow.getExecutionOptions().getFlowParameters();
-		System.out.println("zhongshu-->8");
 		if (flowParam != null && !flowParam.isEmpty()) {
-			System.out.println("zhongshu-->9");
 			commonFlowProps = new Props(commonFlowProps, flowParam);
-			System.out.println("zhongshu-->10");
 		}
 		flow.setInputProps(commonFlowProps);
-		System.out.println("zhongshu-->11");
-		
+
 		// Create execution dir
 		createLogger(flowId);//zhongshu-comment 貌似是卡在这一步
-		System.out.println("zhongshu-->12");
-		
+
 		if (this.watcher != null) {
 			this.watcher.setLogger(logger);
 		}
 
-		System.out.println("zhongshu-->13");
-		//zhongshu-comment 8167 8170 8172没有运行到这步
+		//zhongshu-comment
 		logger.info("Running execid:" + execId + " flow:" + flowId + " project:" + projectId + " version:" + version);
 		if (pipelineExecId != null) {
 			logger.info("Running simulateously with " + pipelineExecId + ". Pipelining level " + pipelineLevel);
 		}
 
-		System.out.println("zhongshu-->14");
 		// The current thread is used for interrupting blocks
 		flowRunnerThread = Thread.currentThread();
 		flowRunnerThread.setName("FlowRunner-exec-" + flow.getExecutionId());
-		System.out.println("zhongshu-->15");
 	}
 
 
@@ -331,18 +311,13 @@ public class FlowRunner extends EventHandler implements Runnable {
 		String loggerName = execId + "." + flowId;
 		logger = Logger.getLogger(loggerName);
 
-		System.out.println("zhongshu-->createLogger_start");
 
 		// Create file appender
 		String logName = "_flow." + loggerName + ".log";
 		logFile = new File(execDir, logName);
 		String absolutePath = logFile.getAbsolutePath();
 
-		System.out.println("zhongshu-->execDir" + execDir);
-		System.out.println("zhongshu-->logName" + logName);
-		System.out.println("zhongshu-->absolutePath" + absolutePath);
-
-		flowAppender = null;//zhongshu-comment 为什么会失败呢？难道创建了之后被删除了，但是没有找到删除的代码啊
+		flowAppender = null;//zhongshu-comment
 		try {
 			flowAppender = new FileAppender(loggerLayout, absolutePath, false);
 			logger.addAppender(flowAppender);

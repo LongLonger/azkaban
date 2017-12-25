@@ -82,7 +82,6 @@ azkaban.FlowExecuteDialogView = Backbone.View.extend({
 			projectId: projectId,
 			project: this.projectName,
 			rerunExecid: execid,
-			isRerun: "true",
 			ajax: "executeFlow",
 			flow: this.flowId,
 			disabled: JSON.stringify(disabledList),
