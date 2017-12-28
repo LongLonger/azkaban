@@ -42,7 +42,7 @@ function ajaxCall(requestURL, data, callback) {
 }
 
 function executeFlow(executingData) {
-	executeURL = contextURL + "/executor";
+	executeURL = contextURL + "/executor?random_time=" + Math.random();
 	var successHandler = function(data) {
 		if (data.error) {
 			flowExecuteDialogView.hideExecutionOptionPanel();
