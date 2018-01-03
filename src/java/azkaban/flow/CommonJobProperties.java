@@ -135,6 +135,7 @@ public class CommonJobProperties {
 	 * zhongshu-comment: added by zhongshu, my email zhongshuhuang215039@sohu-inc.com
 	 */
 	public static final String CUSTOM_DAY= "custom.day";
+	public static final String CUSTOM_LAST_DAY= "custom.last.day";
 	public static final String CUSTOM_HOUR = "custom.hour";
 	public static final String CUSTOM_LAST_HOUR = "custom.last.hour";
 	public static final String CUSTOM_MINUTE = "custom.minute"; //zhongshu-comment: 为了测试重跑flow时使用的时间是否是失败那次flow的时间，所以加上分钟这个属性，不然我就要等下个小时才能测试

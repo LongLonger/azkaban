@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import azkaban.flow.CommonJobProperties;
+import azkaban.utils.*;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
@@ -37,13 +38,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 
 import azkaban.database.AbstractJdbcLoader;
-import azkaban.utils.FileIOUtils;
 import azkaban.utils.FileIOUtils.LogData;
-import azkaban.utils.GZIPUtils;
-import azkaban.utils.JSONUtils;
-import azkaban.utils.Pair;
-import azkaban.utils.Props;
-import azkaban.utils.PropsUtils;
 
 public class JdbcExecutorLoader extends AbstractJdbcLoader 
 		implements ExecutorLoader {
@@ -1098,16 +1093,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			if (submitTime == -12345) {
 				throw new Exception("query submit time fail!");
 			} else {
-				Calendar cal = Calendar.getInstance();//zhongshu-comment: added by zhongshu
-				cal.setTimeInMillis(submitTime);
-				SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-				SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
-				SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHHmm");
-				commonFlowProps.put(CommonJobProperties.CUSTOM_DAY, sdf1.format(cal.getTime()));
-				commonFlowProps.put(CommonJobProperties.CUSTOM_HOUR, sdf2.format(cal.getTime()));
-				commonFlowProps.put(CommonJobProperties.CUSTOM_MINUTE, sdf3.format(cal.getTime()));
-				cal.add(Calendar.HOUR_OF_DAY, -1);
-				commonFlowProps.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf2.format(cal.getTime()));
+
+				CustomDateUtil.customDate(commonFlowProps, submitTime);
 			}
 		}
 	}
