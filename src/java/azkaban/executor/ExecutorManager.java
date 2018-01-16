@@ -522,7 +522,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 					message = "Flow " + flowId + " is already running with exec id " + StringUtils.join(running, ",") +". Will execute concurrently. \n";
 				}
 			}
-			//zhongshu-comment 在这里设置execution flow id，没执行一个execution就会生成新的id
+			//zhongshu-comment 在这里设置execution flow id，每执行一个execution就会生成新的id
 			// The exflow id is set by the loader. So it's unavailable until after this call.
 			executorLoader.uploadExecutableFlow(exflow);
 			

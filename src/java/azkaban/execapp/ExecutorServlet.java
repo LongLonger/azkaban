@@ -102,7 +102,7 @@ public class ExecutorServlet extends HttpServlet implements ConnectorParams {
 					else if (action.equals(ATTACHMENTS_ACTION)) { 
 						handleFetchAttachmentsEvent(execid, req, resp, respMap);
 					}
-					else if (action.equals(EXECUTE_ACTION)) {
+					else if (action.equals(EXECUTE_ACTION)) {//zhongshu-comment 执行一个flow，或者重跑一个flow都会走这个分支
 						//zhongshu-comment 重点代码，执行flow
 						handleAjaxExecute(req, respMap, execid);
 					}

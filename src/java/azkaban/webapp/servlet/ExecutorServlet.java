@@ -67,13 +67,14 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 		velocityHelper = new ExecutorVelocityHelper();
 	}
 
+	//zhongshu-comment 处理前端页面发来的请求
 	@Override
 	protected void handleGet(HttpServletRequest req, HttpServletResponse resp, 
 			Session session) throws ServletException, IOException {
 		if (hasParam(req, "ajax")) {
 			handleAJAXAction(req, resp, session);
-		}
-		else if (hasParam(req, "execid")) {
+		} else if (hasParam(req, "execid")) {
+
 			if (hasParam(req, "job")) {
 				handleExecutionJobDetailsPage(req, resp, session);
 			}
@@ -158,7 +159,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 			String projectName = getParam(req, "project");
 			
 			ret.put("project", projectName);
-			if (ajaxName.equals("executeFlow")) {
+			if (ajaxName.equals("executeFlow")) {//zhongshu-comment 关键代码。执行一个新的flow、或者重跑flow，都会走这个分支
 				ajaxAttemptExecuteFlow(req, resp, ret, session.getUser());
 			}
 		}
@@ -805,7 +806,9 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 		}
 		options.setMailCreator(flow.getMailCreator());
 
+
 		try {
+			//zhongshu-comment 跳进去，里面有设置execId的代码
 			//zhongshu-comment 关键代码
 			String message = executorManager.submitExecutableFlow(exflow, user.getUserId());
 			ret.put("message", message);

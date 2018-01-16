@@ -105,7 +105,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				throw new ExecutorManagerException("Execution id is not properly created.");
 			}
 			logger.info("Flow given " + flow.getFlowId() + " given id " + id);
-			flow.setExecutionId((int)id);
+			flow.setExecutionId((int)id);//zhongshu-comment 就是在这里生成execId
 			
 			updateExecutableFlow(connection, flow, encType);
 		}
@@ -125,8 +125,12 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		finally {
 			DbUtils.closeQuietly(connection);
 		}
-	} 
-	
+	}
+
+	/**
+	 * zhongshu-comment 目测这个方法主要就是为了将ExecutableFlow对象的内容压缩一下，然后存到flow_data字段中
+	 * ==question== flow_data的字段都是来自于其他字段的，为什么要冗余存储一下？？
+	 */
 	private void updateExecutableFlow(
 			Connection connection, ExecutableFlow flow, EncodingType encType) 
 			throws ExecutorManagerException {
@@ -1084,7 +1088,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		}
 	}
 
-	//zhongshu-comment
+	//zhongshu-comment added by zhongshu
 	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception {
 		if (rerunExecid != null && !rerunExecid.trim().equals("")) {
 			//查询数据库的execution_flows表的submit_time字段

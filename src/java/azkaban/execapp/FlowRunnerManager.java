@@ -415,13 +415,14 @@ public class FlowRunnerManager implements EventListener {
 			.setNumJobThreads(numJobThreads)
 			.addListener(this);
 
-		//zhongshu-comment added by zhongshu
+		//zhongshu-comment added by zhongshu 重点代码
 		try {
 			String rerunExecid = req.getParameter(ExecutionOptions.RERUN_EXECID);
 			runner.setRerunExecid(rerunExecid);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
 
 		/*
 		zhongshu-comment 就是在这个地方加代码
@@ -439,7 +440,6 @@ public class FlowRunnerManager implements EventListener {
 		} catch (Exception e) {
 
 		}
-
 
 		// Check again.
 		if (runningFlows.containsKey(execId)) {

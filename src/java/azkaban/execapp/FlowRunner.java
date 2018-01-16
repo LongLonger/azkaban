@@ -113,8 +113,11 @@ public class FlowRunner extends EventHandler implements Runnable {
 	
 	// The following is state that will trigger a retry of all failed jobs
 	private boolean retryFailedJobs = false;
-	
-	//zhongshu-comment added by zhongshu
+
+	/**
+	 * zhongshu-comment added by zhongshu
+	 * 暂时不会有线程安全问题，不存在多个线程修改该变量的情况
+	 */
 	private String rerunExecid = "";
 
 	/**
@@ -217,7 +220,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 			loadAllProperties();
 
 			this.fireEventListeners(Event.create(this, Type.FLOW_STARTED));
-			runFlow();
+			runFlow();//zhongshu-comment 重点代码
 		} catch (Throwable t) {
 			if (logger != null) {
 				logger.error("An error has occurred during the running of the flow. Quiting.", t);
@@ -239,7 +242,12 @@ public class FlowRunner extends EventHandler implements Runnable {
 			this.fireEventListeners(Event.create(this, Type.FLOW_FINISHED));
 		}
 	}
-	
+
+	/**
+	 *
+	 * @param rerunExecid zhongshu-comment added by zhongshu，该参数是另外加上去的，源码本身没有
+	 * @throws Exception
+	 */
 	@SuppressWarnings("unchecked")
 	private void setupFlowExecution(String rerunExecid) throws Exception {
 		int projectId = flow.getProjectId();
@@ -250,8 +258,8 @@ public class FlowRunner extends EventHandler implements Runnable {
 		// Add a bunch of common azkaban properties
 		Props commonFlowProps = PropsUtils.addCommonFlowProperties(this.globalProps, flow);
 
-		//zhongshu-comment added by zhongshu
-		executorLoader.querySubmitTimeByRerunId(rerunExecid, commonFlowProps);//zhongshu-comment 我擦，就是卡在这一步
+		//zhongshu-comment added by zhongshu 重跑任务时使用之前的那个时间，而不是使用新的时间
+		executorLoader.querySubmitTimeByRerunId(rerunExecid, commonFlowProps);//zhongshu-comment
 
 		if (flow.getJobSource() != null) {
 			String source = flow.getJobSource();
@@ -268,7 +276,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 		flow.setInputProps(commonFlowProps);
 
 		// Create execution dir
-		createLogger(flowId);//zhongshu-comment 貌似是卡在这一步
+		createLogger(flowId);//zhongshu-comment
 
 		if (this.watcher != null) {
 			this.watcher.setLogger(logger);
