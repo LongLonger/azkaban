@@ -525,16 +525,23 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			//zhongshu-comment 在这里设置execution flow id，每执行一个execution就会生成新的id
 			// The exflow id is set by the loader. So it's unavailable until after this call.
 			//zhongshu-comment modified by zhongshu，原来就只有executorLoader.uploadExecutableFlow(exflow)这一行，因为原来的逻辑是：新跑或重跑都插入一条新记录
-			if (null != options.getRerunExecid() && !"".equals(options.getRerunExecid().trim())) { //zhongshu-comment 如果是新跑一个flow，就插入一条新记录
-				executorLoader.uploadExecutableFlow(exflow);
-			} else { //zhongshu-comment 如果是重跑，就只更新一些字段吧，问题是更新哪些字段呢？question
+			System.out.println("***zhongshu*** " + options.getRerunExecid());
+			if (null != options.getRerunExecid() && !"".equals(options.getRerunExecid().trim())) { //zhongshu-comment 如果是重跑，就只更新一些字段吧，问题是更新哪些字段呢？question
 				//todo added by zhongshu
+				System.out.println("***zhongshu*** " + "重跑1");
 				exflow.setExecutionId(Integer.parseInt(options.getRerunExecid()));//重跑的那个id
 				exflow.setStatus(Status.PREPARING);
 				exflow.setUpdateTime(System.currentTimeMillis());
 				executorLoader.updateExecutableFlow(exflow);
+				System.out.println("***zhongshu*** " + "重跑2");
+
+			} else { //zhongshu-comment 如果是新跑一个flow，就插入一条新记录
+
+				executorLoader.uploadExecutableFlow(exflow);
+				System.out.println("***zhongshu*** " + "第一次跑");
 			}
 
+			System.out.println("***zhongshu*** " + exflow.getExecutionId());
 			
 			// We create an active flow reference in the datastore. If the upload fails, we remove the reference.
 			ExecutionReference reference = new ExecutionReference(exflow.getExecutionId(), executorHost, executorPort);
