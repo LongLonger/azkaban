@@ -58,7 +58,12 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	public void setDefaultEncodingType(EncodingType defaultEncodingType) {
 		this.defaultEncodingType = defaultEncodingType;
 	}
-	
+
+	/**
+	 * zhongshu-comment 该方法只在一处被调用了，就是在新建一个execution的时候被调用了
+	 * @param flow
+	 * @throws ExecutorManagerException
+	 */
 	@Override
 	public synchronized void uploadExecutableFlow(ExecutableFlow flow) 
 			throws ExecutorManagerException {
@@ -93,7 +98,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 					flow.getProjectId(), 
 					flow.getFlowId(), 
 					flow.getVersion(), 
-					Status.PREPARING.getNumVal(), 
+					Status.PREPARING.getNumVal(), //zhongshu-comment 刚insert到数据库中的记录是preparing状态，preparing状态的上一个状态是READY
 					submitTime, 
 					flow.getSubmitUser(), 
 					submitTime);
@@ -130,6 +135,9 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	/**
 	 * zhongshu-comment 目测这个方法主要就是为了将ExecutableFlow对象的内容压缩一下，然后存到flow_data字段中
 	 * ==question== flow_data的字段都是来自于其他字段的，为什么要冗余存储一下？？
+	 *
+	 * 用INSERT.*flow_data和UPDATE.*flow_data这两个真个则搜索
+	 * 就只有这个位置是修改了flow_data字段的值
 	 */
 	private void updateExecutableFlow(
 			Connection connection, ExecutableFlow flow, EncodingType encType) 
@@ -141,6 +149,11 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		QueryRunner runner = new QueryRunner();
 		
 		String json = JSONUtils.toJSON(flow.toObject());
+
+		System.out.println();
+		System.out.println("***zhongshu_debug*** " + json);
+		System.out.println();
+
 		byte[] data = null;
 		try {
 			byte[] stringData = json.getBytes("UTF-8");
@@ -153,7 +166,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		catch (IOException e) {
 			throw new ExecutorManagerException("Error encoding the execution flow.");
 		}
-		
+
 		try {
 			runner.update(
 					connection, 
@@ -1067,7 +1080,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		}
 	}
 
-	//zhongshu-comment
+	//zhongshu-comment added by zhongshu
 	private static class FetchSubmitTimeHandler
 			implements ResultSetHandler<Long> {
 		private static String SQL =
@@ -1165,6 +1178,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		}
 	}
 
+	//zhongshu-comment 查询flow_data
 	private static class FetchActiveExecutableFlows 
 			implements ResultSetHandler<Map<Integer, Pair<ExecutionReference,ExecutableFlow>>> {
 		private static String FETCH_ACTIVE_EXECUTABLE_FLOW = 
@@ -1227,7 +1241,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			return execFlows;
 		}
 	}
-	
+
+	//zhongshu-comment 查询flow_data
 	private static class FetchExecutableFlows 
 			implements ResultSetHandler<List<ExecutableFlow>> {
 		private static String FETCH_BASE_EXECUTABLE_FLOW_QUERY = 
@@ -1329,4 +1344,6 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		
 		return updateNum;
 	}
+
+
 }

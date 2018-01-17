@@ -492,7 +492,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			int projectId = exflow.getProjectId();
 			String flowId = exflow.getFlowId();
 			exflow.setSubmitUser(userId);
-			exflow.setSubmitTime(System.currentTimeMillis());
+			exflow.setSubmitTime(System.currentTimeMillis());//zhongshu-comment 如果是重跑任务时不新增一个execution，那么这个submit_time值不应该修改吧？？
 			
 			List<Integer> running = getRunningFlows(projectId, flowId);
 
@@ -524,13 +524,23 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			}
 			//zhongshu-comment 在这里设置execution flow id，每执行一个execution就会生成新的id
 			// The exflow id is set by the loader. So it's unavailable until after this call.
-			executorLoader.uploadExecutableFlow(exflow);
+			//zhongshu-comment modified by zhongshu，原来就只有executorLoader.uploadExecutableFlow(exflow)这一行，因为原来的逻辑是：新跑或重跑都插入一条新记录
+			if (null != options.getRerunExecid() && !"".equals(options.getRerunExecid().trim())) { //zhongshu-comment 如果是新跑一个flow，就插入一条新记录
+				executorLoader.uploadExecutableFlow(exflow);
+			} else { //zhongshu-comment 如果是重跑，就只更新一些字段吧，问题是更新哪些字段呢？question
+				//todo added by zhongshu
+				exflow.setExecutionId(Integer.parseInt(options.getRerunExecid()));//重跑的那个id
+				exflow.setStatus(Status.PREPARING);
+				exflow.setUpdateTime(System.currentTimeMillis());
+				executorLoader.updateExecutableFlow(exflow);
+			}
+
 			
 			// We create an active flow reference in the datastore. If the upload fails, we remove the reference.
 			ExecutionReference reference = new ExecutionReference(exflow.getExecutionId(), executorHost, executorPort);
 			executorLoader.addActiveExecutableReference(reference);
 			try {
-				//zhongshu-comment: added by zhongshu
+				//zhongshu-comment: 重要代码 added by zhongshu rerunExecid就是在这里传进去的
 				Pair<String, String> pair = new Pair<String, String>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
 
 				//zhongshu-comment 关键代码，向executor server发http请求执行flow
@@ -859,7 +869,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 				if (!isFinished(dsFlow)) {
 					updaterStage = "finalizing flow " + execId + " failing the flow";
 					failEverything(dsFlow);
-					executorLoader.updateExecutableFlow(dsFlow);
+					executorLoader.updateExecutableFlow(dsFlow);//zhongshu-comment 更新data_flow
 				}
 			}
 
@@ -868,7 +878,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			// Delete the executing reference.
 			if (flow.getEndTime() == -1) {
 				flow.setEndTime(System.currentTimeMillis());
-				executorLoader.updateExecutableFlow(dsFlow);
+				executorLoader.updateExecutableFlow(dsFlow);//zhongshu-comment 更新data_flow
 			}
 			executorLoader.removeActiveExecutableReference(execId);
 			

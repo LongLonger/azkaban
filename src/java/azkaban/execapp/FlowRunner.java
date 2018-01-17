@@ -308,7 +308,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 	private synchronized void updateFlow(long time) {
 		try {
 			flow.setUpdateTime(time);
-			executorLoader.updateExecutableFlow(flow);
+			executorLoader.updateExecutableFlow(flow);//zhongshu-comment 更新data_flow
 		} catch (ExecutorManagerException e) {
 			logger.error("Error updating flow.", e);
 		}

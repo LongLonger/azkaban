@@ -796,6 +796,8 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 		exflow.setSubmitUser(user.getUserId());
 		exflow.addAllProxyUsers(project.getProxyUsers());
 
+		//zhongshu-comment options对象就是用来封装http请求里的各个参数
+		//zhongshu-comment rerunExecid 就是在这里设置到options对象中
 		ExecutionOptions options = HttpRequestUtils.parseFlowOptions(req);
 		exflow.setExecutionOptions(options);
 		if (!options.isFailureEmailsOverridden()) {

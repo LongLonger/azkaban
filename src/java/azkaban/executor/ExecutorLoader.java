@@ -79,6 +79,12 @@ public interface ExecutorLoader {
 
 	public int removeExecutionLogsByTime(long millis) throws ExecutorManagerException;
 
+	/**
+	 * zhongshu-comment added by zhongshu
+	 * @param rerunExecid
+	 * @param commonFlowProps
+	 * @throws Exception
+	 */
 	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception;
 	
 }
