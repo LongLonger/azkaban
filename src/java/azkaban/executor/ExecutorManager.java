@@ -254,10 +254,14 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 		return executorLoader.fetchNumExecutableFlows(project.getId(), flowId);
 	}
 	
+	//zhongshu-comment
 	@Override
 	public LogData getExecutableFlowLog(ExecutableFlow exFlow, int offset, int length) throws ExecutorManagerException {
 		Pair<ExecutionReference, ExecutableFlow> pair = runningFlows.get(exFlow.getExecutionId());
+
+		//zhongshu-comment 正在运行的execution
 		if (pair != null) {
+			System.out.println("***zhongshu*** ExecutorManager.getExecutableFlowLog() 分支11");
 			Pair<String,String> typeParam = new Pair<String,String>("type", "flow");
 			Pair<String,String> offsetParam = new Pair<String,String>("offset", String.valueOf(offset));
 			Pair<String,String> lengthParam = new Pair<String,String>("length", String.valueOf(length));
@@ -267,11 +271,17 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			return LogData.createLogDataFromObject(result);
 		}
 		else {
+			/*
+			zhongshu-comment 获取execution的日志。
+			是已经运行结束的execution的日志，结束了的execution的日志是上传到MySQL的
+			 */
+			System.out.println("***zhongshu*** ExecutorManager.getExecutableFlowLog() 分支22");
 			LogData value = executorLoader.fetchLogs(exFlow.getExecutionId(), "", 0, offset, length);
 			return value;
 		}
 	}
 	
+	//zhongshu-comment
 	@Override
 	public LogData getExecutionJobLog(
 			ExecutableFlow exFlow, String jobId, int offset, int length, int attempt)
@@ -297,6 +307,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			return LogData.createLogDataFromObject(result);
 		}
 		else {
+			//zhongshu-comment 获取job的日志
 			LogData value = executorLoader.fetchLogs(
 					exFlow.getExecutionId(), jobId, attempt, offset, length);
 			return value;
@@ -522,6 +533,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 					message = "Flow " + flowId + " is already running with exec id " + StringUtils.join(running, ",") +". Will execute concurrently. \n";
 				}
 			}
+
 			//zhongshu-comment 在这里设置execution flow id，每执行一个execution就会生成新的id
 			// The exflow id is set by the loader. So it's unavailable until after this call.
 			//zhongshu-comment modified by zhongshu，原来就只有executorLoader.uploadExecutableFlow(exflow)这一行，因为原来的逻辑是：新跑或重跑都插入一条新记录

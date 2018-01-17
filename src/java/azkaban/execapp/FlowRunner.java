@@ -236,6 +236,11 @@ public class FlowRunner extends EventHandler implements Runnable {
 
 			flow.setEndTime(System.currentTimeMillis());
 			logger.info("Setting end time for flow " + execId + " to " + System.currentTimeMillis());
+
+			/*
+			zhongshu-comment FlowRunner这个线程的run()方法结束，关闭日志的文件流，并且上传日志到MySQL
+							 FlowRunner线程结束也就意味着一个execution的结束
+			 */
 			closeLogger();
 			
 			updateFlow();
@@ -325,6 +330,8 @@ public class FlowRunner extends EventHandler implements Runnable {
 		logFile = new File(execDir, logName);
 		String absolutePath = logFile.getAbsolutePath();
 
+		System.out.println("***zhongshu***_logFile_absolutePath" + absolutePath);
+
 		flowAppender = null;//zhongshu-comment
 		try {
 			flowAppender = new FileAppender(loggerLayout, absolutePath, false);
@@ -340,6 +347,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 			flowAppender.close();
 			
 			try {
+				//zhongshu-comment 上传日志文件
 				executorLoader.uploadLogFile(execId, "", 0, logFile);
 			} catch (ExecutorManagerException e) {
 				e.printStackTrace();

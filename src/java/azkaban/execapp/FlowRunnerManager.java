@@ -104,6 +104,10 @@ public class FlowRunnerManager implements EventListener {
 	private Object executionDirDeletionSync = new Object();
 		
 	public FlowRunnerManager(Props props, ExecutorLoader executorLoader, ProjectLoader projectLoader, ClassLoader parentClassLoader) throws IOException {
+		/*
+		zhongshu-comment 没有搜索到：grep "azkaban.execution.dir" $AZKABAN_HOME/conf/*
+		所以使用的是默认值：executions，即$AZKABAN_HOME/exectuions目录
+		 */
 		executionDirectory = new File(props.getString("azkaban.execution.dir", "executions"));
 		projectDirectory = new File(props.getString("azkaban.project.dir", "projects"));
 		

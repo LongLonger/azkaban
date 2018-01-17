@@ -688,7 +688,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			throw new ExecutorManagerException("Error querying job info " + jobId, e);
 		}
 	}
-	
+
+	//zhongshu-comment
 	@Override
 	public LogData fetchLogs(
 			int execId, String name, int attempt, int startByte, int length)
@@ -742,7 +743,20 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 					"Error query job attachments " + jobId, e);
 		}
 	}
-	
+
+	/**
+	 * zhongshu-comment 上传日志
+	 * execution和job的日志都上传到execution_logs这张表，应该是 to be confirmed
+	 * 该方法在两个地方被调用：
+	 * 		1、FlowRunner，应该是上传每次execution的日志
+	 * 		2、JobRunner，应该是上传job的日志，每个execution对应多个job
+ 	 * @param execId
+	 * @param name zhongshu-comment 假如是上传execution的日志，那name参数就为空字符串""
+	 *             					假如上传job的日志，那name参数就为ExecutableNode.getNestedId()，即job的名字
+	 * @param attempt
+	 * @param files
+	 * @throws ExecutorManagerException
+	 */
 	@Override
 	public void uploadLogFile(
 			int execId, String name, int attempt, File ... files)
@@ -763,7 +777,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			DbUtils.closeQuietly(connection);
 		}
 	}
-	
+
+	//zhongshu-comment
 	private void uploadLogFile(
 			Connection connection, 
 			int execId, 
@@ -784,7 +799,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				
 				bufferedStream = new BufferedInputStream(new FileInputStream(file));
 				int size = bufferedStream.read(buffer, pos, length);
-				while (size >= 0) {
+				while (size >= 0) {//zhongshu-comment 循环上传日志，每次上传一部分
 					if (pos + size == buffer.length) {
 						// Flush here.
 						uploadLogPart(
@@ -811,7 +826,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				}
 			}
 			
-			// Final commit of buffer.
+			// Final commit of buffer. //zhongshu-comment 将最后的末尾部分也上传了
 			if (pos > 0) {
 				uploadLogPart(
 						connection, 
@@ -836,6 +851,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		}
 	}
 	
+	//zhongshu-comment 上传日志到MySQL
 	private void uploadLogPart(
 			Connection connection, 
 			int execId, 
@@ -942,11 +958,27 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	}
 	
 	private static class FetchLogsHandler implements ResultSetHandler<LogData> {
+		//zhongshu-comment 将原来的sql语句注释掉
+		//		private static String FETCH_LOGS =
+//			"SELECT exec_id, name, attempt, enc_type, start_byte, end_byte, log " +
+//					"FROM execution_logs " +
+//					"WHERE exec_id=? AND name=? AND attempt=? AND end_byte > ? " + //zhongshu-comment   end_byte > startByte
+//					"AND start_byte <= ? ORDER BY start_byte"; //zhongshu-comment   start_byte <= startByte + length
+		/*
+		req 300 400
+		record  350    500
+
+		500 > 300
+		350 < 400
+		 */
+
+
+		//zhongshu-comment 先查询rerun_time字段的最大值
 		private static String FETCH_LOGS =
-			"SELECT exec_id, name, attempt, enc_type, start_byte, end_byte, log " + 
-					"FROM execution_logs " + 
-					"WHERE exec_id=? AND name=? AND attempt=? AND end_byte > ? " + 
-					"AND start_byte <= ? ORDER BY start_byte";
+				"SELECT exec_id, name, attempt, enc_type, start_byte, end_byte, log " +
+						"FROM execution_logs " +
+						"WHERE exec_id=? AND name=? AND attempt=? AND end_byte > ? " + //zhongshu-comment   end_byte > startByte
+						"AND start_byte <= ? ORDER BY start_byte";
 
 		private int startByte;
 		private int endByte;

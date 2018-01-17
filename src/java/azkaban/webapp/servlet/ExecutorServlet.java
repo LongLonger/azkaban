@@ -122,7 +122,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 				else if (ajaxName.equals("resumeFlow")) {
 					ajaxResumeFlow(req, resp, ret, session.getUser(), exFlow);
 				}
-				else if (ajaxName.equals("fetchExecFlowLogs")) {
+				else if (ajaxName.equals("fetchExecFlowLogs")) {//zhongshu-comment 获取execution的执行日志
 					ajaxFetchExecFlowLogs(req, resp, ret, session.getUser(), exFlow);
 				}
 				else if (ajaxName.equals("fetchExecJobLogs")) {
@@ -404,6 +404,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 		resp.setCharacterEncoding("utf-8");
 
 		try {
+			//zhongshu-comment
 			LogData data = executorManager.getExecutableFlowLog(exFlow, offset, length);
 			if (data == null) {
 				ret.put("length", 0);
