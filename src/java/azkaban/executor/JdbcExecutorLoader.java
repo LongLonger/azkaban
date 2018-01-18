@@ -694,16 +694,24 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	public LogData fetchLogs(
 			int execId, String name, int attempt, int startByte, int length)
 			throws ExecutorManagerException {
-		QueryRunner runner = createQueryRunner();
 
-		FetchLogsHandler handler = new FetchLogsHandler(startByte, length + startByte);
 		try {
+
+			QueryRunner runner = createQueryRunner();
+
+			//zhongshu-comment added by zhongshu
+			FetchJobMaxRerunTimeHandler fetchJobMaxRerunTimeHandler = new FetchJobMaxRerunTimeHandler();
+			int maxRerunTime = runner.query(FetchJobMaxRerunTimeHandler.FETCH_JOB_MAX_RERUN_TIME, fetchJobMaxRerunTimeHandler, execId, name, attempt);
+
+			FetchLogsHandler handler = new FetchLogsHandler(startByte, length + startByte);
+
 			LogData result = runner.query(
 					FetchLogsHandler.FETCH_LOGS, 
-					handler, 
+					handler,
 					execId, 
 					name, 
-					attempt, 
+					attempt,
+					maxRerunTime,
 					startByte, 
 					startByte + length);
 			return result;
@@ -956,14 +964,69 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			return id;
 		}
 	}
+
+	private static class FetchExecutionMaxRerunTimeHandler implements ResultSetHandler<Integer> {
+
+		private static String FETCH_EXECUTION_MAX_RERUN_TIME = "SELECT max(rerun_time) FROM execution_logs WHERE exec_id=?";
+
+		@Override
+		public Integer handle(ResultSet resultSet) throws SQLException {
+			if (resultSet.next()) {
+				return resultSet.getInt(1);
+			}
+			return 0;//zhongshu-comment 第一次跑execution时因为之前没有插入过记录，所以直接返回0即可，即rerun_time=0，第一次跑execution
+		}
+	}
+
+
+	//zhongshu-comment added by zhongshu
+	@Override
+	public int fetchExecutionMaxRerunTime(
+			int execId)
+			throws ExecutorManagerException {
+
+		try {
+			FetchExecutionMaxRerunTimeHandler fetchExecutionMaxRerunTimeHandler = new FetchExecutionMaxRerunTimeHandler();
+			QueryRunner runner = createQueryRunner();
+
+			return runner.query(FetchExecutionMaxRerunTimeHandler.FETCH_EXECUTION_MAX_RERUN_TIME, fetchExecutionMaxRerunTimeHandler, execId);
+		}
+		catch (SQLException e) {
+			throw new ExecutorManagerException(
+					"Error fetching logs : fetch execution max rerun_time failed " + execId, e);
+		}
+	}
+
+	/*
+	added by zhongshu
+	zhongshu-comment 因为可能有些job在第1次执行就成功了，那这个jobA那条记录字段rerun_time=0，
+					有些jobB在第2次执行才成功，那这个job那条记录字段rerun_time=1，
+					虽然jobB在第1次执行时失败了，但是这次日志还是会上传的，字段rerun_time=0。
+
+					job跑成功的那一次对应那条记录的rerun_time字段的值肯定是最大的，因为跑成功之后就不能再重跑了！！
+	 */
+	private static class FetchJobMaxRerunTimeHandler implements ResultSetHandler<Integer> {
+
+		private static String FETCH_JOB_MAX_RERUN_TIME = "SELECT max(rerun_time) " +
+				"FROM execution_logs " +
+				"WHERE exec_id=? AND name=? AND attempt=?";
+
+		@Override
+		public Integer handle(ResultSet resultSet) throws SQLException {
+			if (resultSet.next()) {
+				return resultSet.getInt(1);
+			}
+			throw new SQLException("cannot query the max rerun_time!");
+		}
+	}
 	
 	private static class FetchLogsHandler implements ResultSetHandler<LogData> {
-		//zhongshu-comment 将原来的sql语句注释掉
-		//		private static String FETCH_LOGS =
-//			"SELECT exec_id, name, attempt, enc_type, start_byte, end_byte, log " +
-//					"FROM execution_logs " +
-//					"WHERE exec_id=? AND name=? AND attempt=? AND end_byte > ? " + //zhongshu-comment   end_byte > startByte
-//					"AND start_byte <= ? ORDER BY start_byte"; //zhongshu-comment   start_byte <= startByte + length
+		//zhongshu-comment
+		private static String FETCH_LOGS =
+				"SELECT exec_id, name, attempt, enc_type, start_byte, end_byte, log " +
+				"FROM execution_logs " +
+				"WHERE exec_id=? AND name=? AND attempt=? AND rerun_time=? " + //zhongshu-comment   end_byte > startByte
+				"AND end_byte > ? AND start_byte <= ? ORDER BY start_byte"; //zhongshu-comment   start_byte <= startByte + length
 		/*
 		req 300 400
 		record  350    500
@@ -971,14 +1034,6 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		500 > 300
 		350 < 400
 		 */
-
-
-		//zhongshu-comment 先查询rerun_time字段的最大值
-		private static String FETCH_LOGS =
-				"SELECT exec_id, name, attempt, enc_type, start_byte, end_byte, log " +
-						"FROM execution_logs " +
-						"WHERE exec_id=? AND name=? AND attempt=? AND end_byte > ? " + //zhongshu-comment   end_byte > startByte
-						"AND start_byte <= ? ORDER BY start_byte";
 
 		private int startByte;
 		private int endByte;

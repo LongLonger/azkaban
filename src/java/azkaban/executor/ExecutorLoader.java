@@ -86,5 +86,6 @@ public interface ExecutorLoader {
 	 * @throws Exception
 	 */
 	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception;
-	
+
+	public int fetchExecutionMaxRerunTime(int execId) throws ExecutorManagerException;
 }

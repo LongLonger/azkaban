@@ -125,7 +125,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 				else if (ajaxName.equals("fetchExecFlowLogs")) {//zhongshu-comment 获取execution的执行日志
 					ajaxFetchExecFlowLogs(req, resp, ret, session.getUser(), exFlow);
 				}
-				else if (ajaxName.equals("fetchExecJobLogs")) {
+				else if (ajaxName.equals("fetchExecJobLogs")) {//zhongshu-comment 获取job的执行日志
 					ajaxFetchJobLogs(req, resp, ret, session.getUser(), exFlow);
 				}
 				else if (ajaxName.equals("fetchExecJobStats")) {

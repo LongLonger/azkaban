@@ -219,6 +219,8 @@ public class FlowRunner extends EventHandler implements Runnable {
 			logger.info("Fetching job and shared properties.");
 			loadAllProperties();
 
+			//zhongshu-comment todo 查询一下max(rerun_time)
+
 			this.fireEventListeners(Event.create(this, Type.FLOW_STARTED));
 			runFlow();//zhongshu-comment 重点代码
 		} catch (Throwable t) {
@@ -241,7 +243,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 			zhongshu-comment FlowRunner这个线程的run()方法结束，关闭日志的文件流，并且上传日志到MySQL
 							 FlowRunner线程结束也就意味着一个execution的结束
 			 */
-			closeLogger();
+			closeLogger();//zhongshu-comment 在这里将max(rerun_time) + 1传进去
 			
 			updateFlow();
 			this.fireEventListeners(Event.create(this, Type.FLOW_FINISHED));
@@ -347,7 +349,10 @@ public class FlowRunner extends EventHandler implements Runnable {
 			flowAppender.close();
 			
 			try {
-				//zhongshu-comment 上传日志文件
+				/*
+				zhongshu-comment 上传日志文件
+				这里将attempt写死为0，即execution没有attempt的概念，只有job有重试的概念，一次execution就肯定是只有一条log记录，
+				 */
 				executorLoader.uploadLogFile(execId, "", 0, logFile);
 			} catch (ExecutorManagerException e) {
 				e.printStackTrace();
@@ -386,7 +391,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 	 */
 	private void runFlow() throws Exception {
 		logger.info("Starting flows");
-		runReadyJob(this.flow);
+		runReadyJob(this.flow);//zhongshu-comment
 		updateFlow();
 		
 		while (!flowFinished) {
