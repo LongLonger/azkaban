@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import azkaban.flow.Node;
+import azkaban.utils.Pair;
 import azkaban.utils.Props;
 import azkaban.utils.PropsUtils;
 import azkaban.utils.TypedMapWrapper;
@@ -391,7 +392,8 @@ public class ExecutableNode {
 		TypedMapWrapper<String,Object> wrapper = new TypedMapWrapper<String,Object>(updateData);
 		applyUpdateObject(wrapper);
 	}
-	
+
+	//zhongshu-comment todo 这个cancelled暂时还没遇到过，暂时不改
 	public void cancelNode(long cancelTime) {
 		if (this.status == Status.DISABLED) {
 			skipNode(cancelTime);
@@ -406,11 +408,32 @@ public class ExecutableNode {
 	
 	public void skipNode(long skipTime) {
 		this.setStatus(Status.SKIPPED);
+
 		this.setStartTime(skipTime);
 		this.setEndTime(skipTime);
 		this.setUpdateTime(skipTime);
 	}
-	
+
+	public void skipNode(Pair<Long, Long> jobStartEndTime) {
+//		this.setStatus(Status.SKIPPED);//zhongshu-comment 将状态改为success
+
+		this.setStatus(Status.SUCCEEDED); //zhongshu-comment question modified by zhongshu
+
+		if (jobStartEndTime != null) {
+			this.setStartTime(jobStartEndTime.getFirst());
+			this.setEndTime(jobStartEndTime.getSecond());
+			this.setUpdateTime(jobStartEndTime.getSecond());
+		} else {
+			long skipTime = System.currentTimeMillis();
+			this.setStatus(Status.SUCCEEDED);
+
+			this.setStartTime(skipTime);
+			this.setEndTime(skipTime);
+			this.setUpdateTime(skipTime);
+		}
+
+	}
+
 	private void updatePastAttempts(List<Object> pastAttemptsList) {
 		if (pastAttemptsList == null) {
 			return;

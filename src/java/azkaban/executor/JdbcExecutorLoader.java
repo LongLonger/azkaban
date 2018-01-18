@@ -149,9 +149,10 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		QueryRunner runner = new QueryRunner();
 		
 		String json = JSONUtils.toJSON(flow.toObject());
+		System.out.println("===zhongshu===updateExecutableFlow_gg " + json);
 
 		System.out.println();
-		System.out.println("***zhongshu_debug*** " + json);
+		System.out.println("===zhongshu_debug=== " + json);
 		System.out.println();
 
 		byte[] data = null;
@@ -185,6 +186,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		}
 	}
 	
+	//zhongshu-comment
 	@Override
 	public ExecutableFlow fetchExecutableFlow(int id) 
 			throws ExecutorManagerException {
@@ -1332,15 +1334,18 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		}
 	}
 
-	//zhongshu-comment 查询flow_data
+	//zhongshu-comment 查询execution_flows表的flow_data字段
 	private static class FetchExecutableFlows 
 			implements ResultSetHandler<List<ExecutableFlow>> {
 		private static String FETCH_BASE_EXECUTABLE_FLOW_QUERY = 
 				"SELECT exec_id, enc_type, flow_data FROM execution_flows ";
-		private static String FETCH_EXECUTABLE_FLOW = 
+
+		//zhongshu-comment
+		private static String FETCH_EXECUTABLE_FLOW =
 				"SELECT exec_id, enc_type, flow_data FROM execution_flows " +
 						"WHERE exec_id=?";
-		//private static String FETCH_ACTIVE_EXECUTABLE_FLOW = 
+
+		//private static String FETCH_ACTIVE_EXECUTABLE_FLOW =
 		//	"SELECT ex.exec_id exec_id, ex.enc_type enc_type, ex.flow_data flow_data " +
 		//			"FROM execution_flows ex " +
 		//			"INNER JOIN active_executing_flows ax ON ex.exec_id = ax.exec_id";
@@ -1377,14 +1382,16 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 						if (encType == EncodingType.GZIP) {
 							// Decompress the sucker.
 							String jsonString = GZIPUtils.unGzipString(data, "UTF-8");
+							System.out.println("===zhongshu===_FetchExecutableFlows 1" + jsonString);
 							flowObj = JSONUtils.parseJSONFromString(jsonString);
 						}
 						else {
 							String jsonString = new String(data, "UTF-8");
+							System.out.println("===zhongshu===_FetchExecutableFlows 2" + jsonString);
 							flowObj = JSONUtils.parseJSONFromString(jsonString);
 						}
-						
-						ExecutableFlow exFlow = 
+
+						ExecutableFlow exFlow =
 								ExecutableFlow.createExecutableFlowFromObject(flowObj);
 						execFlows.add(exFlow);
 					}
@@ -1394,6 +1401,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				}
 			} while (rs.next());
 
+			System.out.println("===zhongshu===_execFlows_size = " + execFlows.size());
 			return execFlows;
 		}
 	}
@@ -1435,5 +1443,43 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		return updateNum;
 	}
 
+	private static class FetchJobStartEndTimeHandler
+			implements ResultSetHandler<Pair<Long, Long>> {
 
+		private static String FETCH_JOB_START_END_TIME = "select start_time,end_time from execution_jobs where exec_id=? and job_id=? and attempt=?";
+
+		@Override
+		public Pair<Long, Long> handle(ResultSet resultSet) throws SQLException {
+
+			Pair<Long, Long> pair = null;
+			if (resultSet.next()) {
+				long startTime = resultSet.getLong("start_time");
+				long endTime = resultSet.getLong("end_time");
+
+				pair = new Pair<>(startTime, endTime);
+			}
+			return pair;
+		}
+	}
+
+	public Pair<Long, Long> fetchJobStartEndTime(ExecutableNode node) throws SQLException {
+		try {
+
+			QueryRunner runner = createQueryRunner();
+			FetchJobStartEndTimeHandler fetchJobStartEndTimeHandler = new FetchJobStartEndTimeHandler();
+
+			System.out.println("===zhongshu===_fetchJobStartEndTime_id " + node.getId());
+			System.out.println("===zhongshu===_fetchJobStartEndTime_nestedId " + node.getNestedId());
+			System.out.println("===zhongshu===_fetchJobStartEndTime_attempt " + node.getAttempt());
+
+			return runner.query(FetchJobStartEndTimeHandler.FETCH_JOB_START_END_TIME,
+                    fetchJobStartEndTimeHandler,
+                    node.getId(),
+                    node.getNestedId(),
+                    node.getAttempt());
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw e;
+		}
+	}
 }

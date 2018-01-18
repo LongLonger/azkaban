@@ -32,6 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 
 import azkaban.executor.*;
+import azkaban.utils.Pair;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.log4j.Appender;
 import org.apache.log4j.FileAppender;
@@ -433,7 +434,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 		logger.info("Finished Flow");
 	}
 	
-	private void retryAllFailures() throws IOException {
+	private void retryAllFailures() throws Exception {
 		logger.info("Restarting all failed jobs");
 		
 		this.retryFailedJobs = false;
@@ -461,7 +462,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 		updateFlow();
 	}
 
-	private boolean progressGraph() throws IOException {
+	private boolean progressGraph() throws Exception {
 		finishedNodes.swap();
 
 		// The following nodes are finished, so we'll collect a list of outnodes
@@ -529,7 +530,9 @@ public class FlowRunner extends EventHandler implements Runnable {
 		
 		return false;
 	}
-	private boolean runReadyJob(ExecutableNode node) throws IOException {
+
+	//zhongshu-comment 好好地阅读以下这个方法
+	private boolean runReadyJob(ExecutableNode node) throws Exception {
 		if (Status.isStatusFinished(node.getStatus()) || 
 			Status.isStatusRunning(node.getStatus())) {
 			return false;
@@ -542,12 +545,17 @@ public class FlowRunner extends EventHandler implements Runnable {
 		
 		if (nextNodeStatus == Status.CANCELLED) {
 			logger.info("Cancelling '" + node.getNestedId() + "' due to prior errors.");
-			node.cancelNode(System.currentTimeMillis());
+			node.cancelNode(System.currentTimeMillis());//zhongshu-comment 擦，找到了，就是这里，这里暂时不改，先放着
 			finishExecutableNode(node);
 		}
 		else if (nextNodeStatus == Status.SKIPPED) {
 			logger.info("Skipping disabled job '" + node.getId() + "'.");
-			node.skipNode(System.currentTimeMillis());
+
+			Pair<Long, Long> pair = executorLoader.fetchJobStartEndTime(node);
+
+//			node.skipNode(System.currentTimeMillis());//zhongshu-comment 擦，找到了，就是这里-_-
+			node.skipNode(pair);
+
 			finishExecutableNode(node);
 		}
 		else if (nextNodeStatus == Status.READY) {

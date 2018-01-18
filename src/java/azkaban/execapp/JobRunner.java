@@ -407,7 +407,7 @@ public class JobRunner extends EventHandler implements Runnable {
 	 */
 	@Override
 	public void run() {
-		System.out.println("***zhongshu JobRunner.run()_nestedID*** 1" + this.node.getNestedId());
+		System.out.println("===zhongshu JobRunner.run()_nestedID=== 1" + this.node.getNestedId());
 		Thread.currentThread().setName("JobRunner-" + this.jobId + "-" + executionId);
 		
 		// If the job is cancelled, disabled, killed. No log is created in this case
@@ -461,7 +461,7 @@ public class JobRunner extends EventHandler implements Runnable {
 		finalizeLogFile();
 		finalizeAttachmentFile();
 		writeStatus();
-		System.out.println("***zhongshu JobRunner.run()_nestedID*** 2" + this.node.getNestedId());
+		System.out.println("===zhongshu JobRunner.run()_nestedID=== 2" + this.node.getNestedId());
 	}
 	
 	private boolean prepareJob() throws RuntimeException {

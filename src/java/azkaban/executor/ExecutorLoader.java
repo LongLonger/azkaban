@@ -17,6 +17,7 @@
 package azkaban.executor;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -88,4 +89,6 @@ public interface ExecutorLoader {
 	public void querySubmitTimeByRerunId(String rerunExecid, Props commonFlowProps) throws Exception;
 
 	public int fetchExecutionMaxRerunTime(int execId) throws ExecutorManagerException;
+
+	public Pair<Long, Long> fetchJobStartEndTime(ExecutableNode node) throws SQLException;
 }

@@ -98,7 +98,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 			ExecutableFlow exFlow = null;
 
 			try {
-				exFlow = executorManager.getExecutableFlow(execid);
+				exFlow = executorManager.getExecutableFlow(execid);//zhongshu-comment
 			} catch (ExecutorManagerException e) {
 				ret.put("error", "Error fetching execution '" + execid + "': " + e.getMessage());
 			}
@@ -107,7 +107,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 				ret.put("error", "Cannot find execution '" + execid + "'");
 			}
 			else {
-				if (ajaxName.equals("fetchexecflow")) {
+				if (ajaxName.equals("fetchexecflow")) {//zhongshu-comment
 					ajaxFetchExecutableFlow(req, resp, ret, session.getUser(), exFlow);
 				}
 				else if (ajaxName.equals("fetchexecflowupdate")) {
@@ -701,7 +701,7 @@ public class ExecutorServlet extends LoginAbstractAzkabanServlet {
 			}
 			
 			nodeObj.put("flow", base.getFlowId());
-			nodeObj.put("nodes", nodeList);
+			nodeObj.put("nodes", nodeList); //zhongshu-comment
 			nodeObj.put("flowId", base.getFlowId());
 		}
 		

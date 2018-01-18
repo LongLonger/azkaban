@@ -167,11 +167,12 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 		return false;
 	}
 	
+	//zhongshu-comment
 	@Override
 	public ExecutableFlow getExecutableFlow(int execId) throws ExecutorManagerException {
-		Pair<ExecutionReference, ExecutableFlow> active = runningFlows.get(execId);
+		Pair<ExecutionReference, ExecutableFlow> active = runningFlows.get(execId);//zhongshu-comment 正在运行的execution？？？
 		if (active == null) {
-			return executorLoader.fetchExecutableFlow(execId);
+			return executorLoader.fetchExecutableFlow(execId);//zhongshu-comment
 		}
 		return active.getSecond();
 	}
@@ -503,7 +504,9 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			int projectId = exflow.getProjectId();
 			String flowId = exflow.getFlowId();
 			exflow.setSubmitUser(userId);
-			exflow.setSubmitTime(System.currentTimeMillis());//zhongshu-comment 如果是重跑任务时不新增一个execution，那么这个submit_time值不应该修改吧？？
+
+			//zhongshu-comment question如果是重跑任务时不新增一个execution，那么这个submit_time值不应该修改吧？？
+			exflow.setSubmitTime(System.currentTimeMillis());
 			
 			List<Integer> running = getRunningFlows(projectId, flowId);
 
@@ -541,19 +544,21 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			if (null != options.getRerunExecid() && !"".equals(options.getRerunExecid().trim())) { //zhongshu-comment 如果是重跑，就只更新一些字段吧，问题是更新哪些字段呢？question
 				//todo added by zhongshu
 				System.out.println("***zhongshu*** " + "重跑1");
+
 				exflow.setExecutionId(Integer.parseInt(options.getRerunExecid()));//重跑的那个id
-				exflow.setStatus(Status.PREPARING);
+				exflow.setStatus(Status.PREPARING);//zhongshu-comment 将数据库中status字段的failed状态更新为PREPARING
 				exflow.setUpdateTime(System.currentTimeMillis());
+
 				executorLoader.updateExecutableFlow(exflow);
 				System.out.println("***zhongshu*** " + "重跑2");
 
 			} else { //zhongshu-comment 如果是新跑一个flow，就插入一条新记录
 
 				executorLoader.uploadExecutableFlow(exflow);
-				System.out.println("***zhongshu*** " + "第一次跑");
+				System.out.println("===zhongshu=== " + "第一次跑");
 			}
 
-			System.out.println("***zhongshu*** " + exflow.getExecutionId());
+			System.out.println("===zhongshu=== " + exflow.getExecutionId());
 			
 			// We create an active flow reference in the datastore. If the upload fails, we remove the reference.
 			ExecutionReference reference = new ExecutionReference(exflow.getExecutionId(), executorHost, executorPort);
