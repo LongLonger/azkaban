@@ -202,6 +202,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 	}
 	
 	public void run() {
+		int currentRerunTime = 0;
 		try {
 			if (this.executorService == null) {
 				this.executorService = Executors.newFixedThreadPool(numJobThreads);
@@ -220,6 +221,8 @@ public class FlowRunner extends EventHandler implements Runnable {
 			loadAllProperties();
 
 			//zhongshu-comment todo 查询一下max(rerun_time)
+			int maxRerunTime = executorLoader.fetchExecutionMaxRerunTime(execId);
+			currentRerunTime = maxRerunTime + 1;//zhongshu-comment 该变量表示当前这次execution是第几次重跑
 
 			this.fireEventListeners(Event.create(this, Type.FLOW_STARTED));
 			runFlow();//zhongshu-comment 重点代码
@@ -243,7 +246,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 			zhongshu-comment FlowRunner这个线程的run()方法结束，关闭日志的文件流，并且上传日志到MySQL
 							 FlowRunner线程结束也就意味着一个execution的结束
 			 */
-			closeLogger();//zhongshu-comment 在这里将max(rerun_time) + 1传进去
+			closeLogger(currentRerunTime);//zhongshu-comment 在这里将max(rerun_time) + 1传进去
 			
 			updateFlow();
 			this.fireEventListeners(Event.create(this, Type.FLOW_FINISHED));
@@ -342,8 +345,12 @@ public class FlowRunner extends EventHandler implements Runnable {
 			logger.error("Could not open log file in " + execDir, e);
 		}
 	}
-	
-	private void closeLogger() {
+
+	/**
+	 * zhongshu-comment modified by zhongshu 增加了参数currentRerunTime
+	 * @param currentRerunTime
+	 */
+	private void closeLogger(int currentRerunTime) {
 		if (logger != null) {
 			logger.removeAppender(flowAppender);
 			flowAppender.close();
@@ -353,7 +360,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 				zhongshu-comment 上传日志文件
 				这里将attempt写死为0，即execution没有attempt的概念，只有job有重试的概念，一次execution就肯定是只有一条log记录，
 				 */
-				executorLoader.uploadLogFile(execId, "", 0, logFile);
+				executorLoader.uploadLogFile(execId, "", 0, currentRerunTime, logFile);
 			} catch (ExecutorManagerException e) {
 				e.printStackTrace();
 			}

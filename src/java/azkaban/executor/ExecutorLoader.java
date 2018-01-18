@@ -49,7 +49,7 @@ public interface ExecutorLoader {
 
 	public List<Object> fetchAttachments(int execId, String name, int attempt) throws ExecutorManagerException;
 
-	public void uploadLogFile(int execId, String name, int attempt, File ... files) throws ExecutorManagerException;
+	public void uploadLogFile(int execId, String name, int attempt, int currentRerunTime, File ... files) throws ExecutorManagerException;
 	
 	public void uploadAttachmentFile(ExecutableNode node, File file) throws ExecutorManagerException;
 

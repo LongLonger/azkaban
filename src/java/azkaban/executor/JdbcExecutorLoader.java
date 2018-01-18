@@ -767,12 +767,12 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	 */
 	@Override
 	public void uploadLogFile(
-			int execId, String name, int attempt, File ... files)
+			int execId, String name, int attempt, int currentRerunTime, File ... files)
 			throws ExecutorManagerException {
 		Connection connection = getConnection();
 		try {
 			uploadLogFile(
-					connection, execId, name, attempt, files, defaultEncodingType);
+					connection, execId, name, attempt, files, defaultEncodingType, currentRerunTime);
 			connection.commit();
 		}
 		catch (SQLException e) {
@@ -793,7 +793,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			String name, 
 			int attempt, 
 			File[] files, 
-			EncodingType encType) throws ExecutorManagerException, IOException {
+			EncodingType encType, int currentRerunTime) throws ExecutorManagerException, IOException {
 		// 50K buffer... if logs are greater than this, we chunk.
 		// However, we better prevent large log files from being uploaded somehow
 		byte[] buffer = new byte[50*1024];
@@ -819,7 +819,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 								startByte + buffer.length, 
 								encType, 
 								buffer, 
-								buffer.length);
+								buffer.length, currentRerunTime);
 						
 						pos = 0;
 						length = buffer.length;
@@ -845,7 +845,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 						startByte + pos, 
 						encType, 
 						buffer, 
-						pos);
+						pos,
+						currentRerunTime);
 			}
 		}
 		catch (SQLException e) {
@@ -869,11 +870,12 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			int endByte, 
 			EncodingType encType, 
 			byte[] buffer, 
-			int length) throws SQLException, IOException {
+			int length,
+			int currentRerunTime) throws SQLException, IOException {
 		final String INSERT_EXECUTION_LOGS = 
 				"INSERT INTO execution_logs " + 
 						"(exec_id, name, attempt, enc_type, start_byte, end_byte, " + 
-						"log, upload_time) VALUES (?,?,?,?,?,?,?,?)";
+						"log, upload_time, rerun_time) VALUES (?,?,?,?,?,?,?,?,?)";
 		
 		QueryRunner runner = new QueryRunner();
 		byte[] buf = buffer;
@@ -894,7 +896,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				startByte, 
 				startByte + length, 
 				buf, 
-				DateTime.now().getMillis());
+				DateTime.now().getMillis(),
+				currentRerunTime);
 	}
 	
 	@Override
