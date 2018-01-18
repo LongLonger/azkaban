@@ -71,7 +71,10 @@ public class ExecutableNode {
 	
 	// Transient. These values aren't saved, but rediscovered.
 	private ExecutableFlowBase parentFlow; 
-	
+
+	//zhongshu-comment
+	private int currentRerunTime;
+
 	public ExecutableNode(Node node) {
 		this.id = node.getId();
 		this.jobSource = node.getJobSource();
@@ -437,6 +440,14 @@ public class ExecutableNode {
 	
 	public long getRetryBackoff() {
 		return inputProps.getLong("retry.backoff", 0);
+	}
+
+	public int getCurrentRerunTime() {
+		return currentRerunTime;
+	}
+
+	public void setCurrentRerunTime(int currentRerunTime) {
+		this.currentRerunTime = currentRerunTime;
 	}
 }
 

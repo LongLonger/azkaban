@@ -89,7 +89,9 @@ public class JobRunner extends EventHandler implements Runnable {
 	private long delayStartMs = 0;
 	private boolean killed = false;
 	private BlockingStatus currentBlockStatus = null;
-	
+
+	private int currentRerunTime;
+
 	public JobRunner(ExecutableNode node, File workingDir, ExecutorLoader loader, JobTypeManager jobtypeManager) {
 		this.props = node.getInputProps();
 		this.node = node;
@@ -99,6 +101,9 @@ public class JobRunner extends EventHandler implements Runnable {
 		this.jobId = node.getId();
 		this.loader = loader;
 		this.jobtypeManager = jobtypeManager;
+
+		//zhongshu-comment added by zhongshu
+		this.currentRerunTime = node.getCurrentRerunTime();
 	}
 	
 	public void setValidatedProxyUsers(Set<String> proxyUsers) {
@@ -368,7 +373,7 @@ public class JobRunner extends EventHandler implements Runnable {
 			Arrays.sort(files, Collections.reverseOrder());
 
 			//zhongshu-comment 上传日志文件
-			loader.uploadLogFile(executionId, this.node.getNestedId(), node.getAttempt(), files);
+			loader.uploadLogFile(executionId, this.node.getNestedId(), node.getAttempt(), currentRerunTime, files);
 		}
 		catch (ExecutorManagerException e) {
 			flowLogger.error("Error writing out logs for job " + this.node.getNestedId(), e);

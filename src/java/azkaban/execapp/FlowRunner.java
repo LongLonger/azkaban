@@ -119,6 +119,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 	 * 暂时不会有线程安全问题，不存在多个线程修改该变量的情况
 	 */
 	private String rerunExecid = "";
+	private int currentRerunTime;
 
 	/**
 	 * Constructor. 
@@ -160,6 +161,10 @@ public class FlowRunner extends EventHandler implements Runnable {
 		this.proxyUsers = flow.getProxyUsers();
 		this.executorService = executorService;
 		this.finishedNodes = new SwapQueue<ExecutableNode>();
+
+		//zhongshu-comment added by zhongshu 查询max(rerun_time)
+		int maxRerunTime = executorLoader.fetchExecutionMaxRerunTime(execId);
+		currentRerunTime = maxRerunTime + 1;//zhongshu-comment 该变量表示当前这次execution是第几次重跑
 	}
 
 	public String getRerunExecid() {
@@ -202,7 +207,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 	}
 	
 	public void run() {
-		int currentRerunTime = 0;
+
 		try {
 			if (this.executorService == null) {
 				this.executorService = Executors.newFixedThreadPool(numJobThreads);
@@ -219,10 +224,6 @@ public class FlowRunner extends EventHandler implements Runnable {
 			updateFlow();
 			logger.info("Fetching job and shared properties.");
 			loadAllProperties();
-
-			//zhongshu-comment todo 查询一下max(rerun_time)
-			int maxRerunTime = executorLoader.fetchExecutionMaxRerunTime(execId);
-			currentRerunTime = maxRerunTime + 1;//zhongshu-comment 该变量表示当前这次execution是第几次重跑
 
 			this.fireEventListeners(Event.create(this, Type.FLOW_STARTED));
 			runFlow();//zhongshu-comment 重点代码
@@ -749,6 +750,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 		// Collect output props from the job's dependencies.
 		prepareJobProperties(node);
 
+		node.setCurrentRerunTime(currentRerunTime);//zhongshu-comment added by zhongshu
 		node.setStatus(Status.QUEUED);
 		JobRunner runner = createJobRunner(node);
 		logger.info("Submitting job '" + node.getNestedId() + "' to run.");
