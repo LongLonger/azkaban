@@ -415,15 +415,17 @@ public class ExecutableNode {
 	}
 
 	public void skipNode(Pair<Long, Long> jobStartEndTime) {
-//		this.setStatus(Status.SKIPPED);//zhongshu-comment 将状态改为success
+//		this.setStatus(Status.SKIPPED);//zhongshu-comment 将状态改为succeeded
 
 		this.setStatus(Status.SUCCEEDED); //zhongshu-comment question modified by zhongshu
 
 		if (jobStartEndTime != null) {
+			System.out.println("===zhongshu===skipNode_not_null" + jobStartEndTime);
 			this.setStartTime(jobStartEndTime.getFirst());
 			this.setEndTime(jobStartEndTime.getSecond());
 			this.setUpdateTime(jobStartEndTime.getSecond());
 		} else {
+			System.out.println("===zhongshu===skipNode_null" + jobStartEndTime);
 			long skipTime = System.currentTimeMillis();
 			this.setStatus(Status.SUCCEEDED);
 

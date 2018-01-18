@@ -1446,7 +1446,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	private static class FetchJobStartEndTimeHandler
 			implements ResultSetHandler<Pair<Long, Long>> {
 
-		private static String FETCH_JOB_START_END_TIME = "select start_time,end_time from execution_jobs where exec_id=? and job_id=? and attempt=?";
+		private static String FETCH_JOB_START_END_TIME = "select start_time,end_time from execution_jobs " +
+				"where exec_id=? and job_id=? and attempt=? and flow_id=?";
 
 		@Override
 		public Pair<Long, Long> handle(ResultSet resultSet) throws SQLException {
@@ -1456,27 +1457,33 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				long startTime = resultSet.getLong("start_time");
 				long endTime = resultSet.getLong("end_time");
 
-				pair = new Pair<>(startTime, endTime);
+				pair = new Pair<Long, Long>(startTime, endTime);
 			}
 			return pair;
 		}
 	}
 
+	//zhongshu-comment added by zhongshu
 	public Pair<Long, Long> fetchJobStartEndTime(ExecutableNode node) throws SQLException {
 		try {
 
 			QueryRunner runner = createQueryRunner();
 			FetchJobStartEndTimeHandler fetchJobStartEndTimeHandler = new FetchJobStartEndTimeHandler();
 
-			System.out.println("===zhongshu===_fetchJobStartEndTime_id " + node.getId());
+			ExecutableFlow flow = node.getExecutableFlow();
+			String flowId = node.getParentFlow().getFlowPath();
+
+			System.out.println("===zhongshu===_fetchJobStartEndTime_id " + flow.getExecutionId());//executionID
 			System.out.println("===zhongshu===_fetchJobStartEndTime_nestedId " + node.getNestedId());
 			System.out.println("===zhongshu===_fetchJobStartEndTime_attempt " + node.getAttempt());
+			System.out.println("===zhongshu===_fetchJobStartEndTime_attempt " + flowId);
 
 			return runner.query(FetchJobStartEndTimeHandler.FETCH_JOB_START_END_TIME,
                     fetchJobStartEndTimeHandler,
-                    node.getId(),
+					flow.getExecutionId(),
                     node.getNestedId(),
-                    node.getAttempt());
+                    node.getAttempt(),
+					flowId);
 		} catch (SQLException e) {
 			e.printStackTrace();
 			throw e;
