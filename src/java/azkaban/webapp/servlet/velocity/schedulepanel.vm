@@ -25,6 +25,7 @@
                 <h4 class="modal-title">Schedule Flow Options</h4>
             </div><!-- /modal-header -->
             <div class="modal-body">
+
                 <fieldset class="form-horizontal"> <!-- zhongshu-comment -->
                     <div class="form-group">
                         <label class="col-sm-2 control-label">Time</label>
@@ -67,6 +68,20 @@
                             </select>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">custom.time</label>
+
+                        <div class="col-sm-3">
+                            <select id="custom_time_flag" class="form-control">
+                                <option value="hour">hour</option>
+                                <option value="last_hour">last.hour</option>
+                                <option value="day">day</option>
+                                <option value="last_day">last.day</option>
+                            </select>
+                        </div>
+                    </div>
+
                 </fieldset>
             </div>
             <div class="modal-footer">

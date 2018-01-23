@@ -18,76 +18,80 @@ $.namespace('azkaban');
 
 var schedulePanelView;
 azkaban.SchedulePanelView = Backbone.View.extend({
-	events: {
-		"click #schedule-button": "scheduleFlow"
-	},
+    events: {
+        "click #schedule-button": "scheduleFlow"
+    },
 
-	initialize: function(settings) {
-		$("#timepicker").datetimepicker({pickDate: false});
-		$("#datepicker").datetimepicker({pickTime: false});
-	},
+    initialize: function (settings) {
+        $("#timepicker").datetimepicker({pickDate: false});
+        $("#datepicker").datetimepicker({pickTime: false});
+    },
 
-	render: function() {
-	},
-	
-	showSchedulePanel: function() {
-		$('#schedule-modal').modal();
-	},
-	
-	hideSchedulePanel: function() {
-		$('#schedule-modal').modal("hide");
-	},
-	
-	scheduleFlow: function() {
-    var timeVal = $('#timepicker').val();
-		var timezoneVal = $('#timezone').val();
+    render: function () {
+    },
 
-		var dateVal = $('#datepicker').val();
-		
-    var is_recurringVal = $('#is_recurring').val();
-		var periodVal = $('#period').val();
-		var periodUnits = $('#period_units').val();
-	
-		var scheduleURL = contextURL + "/schedule"
-		var scheduleData = flowExecuteDialogView.getExecutionOptionData();
+    showSchedulePanel: function () {
+        $('#schedule-modal').modal();
+    },
 
-		console.log("Creating schedule for " + projectName + "." + 
-				scheduleData.flow);
+    hideSchedulePanel: function () {
+        $('#schedule-modal').modal("hide");
+    },
 
-    var scheduleTime = moment(timeVal, 'h/mm A').format('h,mm,A,') + timezoneVal;
-    console.log(scheduleTime);
-		
-		var scheduleDate = $('#datepicker').val();
-		var is_recurring = document.getElementById('is_recurring').checked 
-				? 'on' : 'off'; 
-		var period = $('#period').val() + $('#period_units').val();
-		
-		scheduleData.ajax = "scheduleFlow";
-		scheduleData.projectName = projectName;
-		scheduleData.scheduleTime = scheduleTime;
-		scheduleData.scheduleDate = scheduleDate;
-		scheduleData.is_recurring = is_recurring;
-		scheduleData.period = period;
-			
-		var successHandler = function(data) {
-			if (data.error) {
-				schedulePanelView.hideSchedulePanel();
-				messageDialogView.show("Error Scheduling Flow", data.message);
-			}
-			else {
-				schedulePanelView.hideSchedulePanel();
-				messageDialogView.show("Flow Scheduled", data.message, function() {
-          window.location.href = scheduleURL;
-        });
-			}
-		};
+    scheduleFlow: function () {
+        var timeVal = $('#timepicker').val();
+        var timezoneVal = $('#timezone').val();
 
-		$.post(scheduleURL, scheduleData, successHandler, "json");
-	}
+        var dateVal = $('#datepicker').val();
+
+        var is_recurringVal = $('#is_recurring').val();
+        var periodVal = $('#period').val();
+        var periodUnits = $('#period_units').val();
+
+        var scheduleURL = contextURL + "/schedule"
+        var scheduleData = flowExecuteDialogView.getExecutionOptionData();
+        //zhongshu-comment
+        console.log("zhongshu-->Creating schedule for " + projectName + "." +
+            scheduleData.flow);
+
+        var scheduleTime = moment(timeVal, 'h/mm A').format('h,mm,A,') + timezoneVal;
+        console.log(scheduleTime);
+
+        var scheduleDate = $('#datepicker').val();
+        var is_recurring = document.getElementById('is_recurring').checked
+            ? 'on' : 'off';
+        var period = $('#period').val() + $('#period_units').val();
+
+        var customTimeFlag = $('#custom_time_flag').val();//zhongshu-comment
+        console.log("customTimeFlag=" + customTimeFlag)
+
+        scheduleData.ajax = "scheduleFlow";
+        scheduleData.projectName = projectName;
+        scheduleData.scheduleTime = scheduleTime;
+        scheduleData.scheduleDate = scheduleDate;
+        scheduleData.is_recurring = is_recurring;
+        scheduleData.period = period;
+        scheduleData.customTimeFlag=customTimeFlag;//zhongshu-comment
+
+        var successHandler = function (data) {
+            if (data.error) {
+                schedulePanelView.hideSchedulePanel();
+                messageDialogView.show("Error Scheduling Flow", data.message);
+            }
+            else {
+                schedulePanelView.hideSchedulePanel();
+                messageDialogView.show("Flow Scheduled", data.message, function () {
+                    window.location.href = scheduleURL;
+                });
+            }
+        };
+
+        $.post(scheduleURL, scheduleData, successHandler, "json");//zhongshu-comment key/important
+    }
 });
 
-$(function() {
-	schedulePanelView =	new azkaban.SchedulePanelView({
-		el: $('#schedule-modal')
-	});
+$(function () {
+    schedulePanelView = new azkaban.SchedulePanelView({
+        el: $('#schedule-modal')
+    });
 });
