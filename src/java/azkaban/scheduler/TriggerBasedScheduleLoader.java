@@ -72,6 +72,7 @@ public class TriggerBasedScheduleLoader implements ScheduleLoader {
 		return cond;
 	}
 
+	//zhongshu-comment
 	@Override
 	public void insertSchedule(Schedule s) throws ScheduleManagerException {
 		Trigger t = scheduleToTrigger(s);
@@ -83,9 +84,10 @@ public class TriggerBasedScheduleLoader implements ScheduleLoader {
 		}
 	}
 
+	//zhongshu-comment
 	@Override
 	public void updateSchedule(Schedule s) throws ScheduleManagerException {
-		Trigger t = scheduleToTrigger(s);
+		Trigger t = scheduleToTrigger(s);//zhongshu-comment Schedule对象转为Trigger对象
 		try {
 			triggerManager.updateTrigger(t, t.getSubmitUser());
 		} catch (TriggerManagerException e) {

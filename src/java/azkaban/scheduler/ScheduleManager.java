@@ -233,22 +233,22 @@ public class ScheduleManager implements TriggerAgent {
 	}
 
 	/**
+	 * zhongshu-comment
 	 * Adds a flow to the schedule.
-	 * 
-	 * @param flow
+	 * @param s
 	 */
 	public synchronized void insertSchedule(Schedule s) {
 		//boolean exist = s.getScheduleId() != -1;
 		Schedule exist = scheduleIdentityPairMap.get(s.getScheduleIdentityPair());
 		if(s.updateTime()) {
 			try {
-				if(exist == null) {
-					loader.insertSchedule(s);
+				if(exist == null) {//zhongshu-comment 不存在就往表插入一条新纪录
+					loader.insertSchedule(s);//zhongshu-comment 往triggers表新插入一条记录
 					internalSchedule(s);
 				}
 				else{
 					s.setScheduleId(exist.getScheduleId());
-					loader.updateSchedule(s);
+					loader.updateSchedule(s);//zhongshu-comment 先移除掉list中的Trigger，然后再将更新的内容update到triggers表中
 					internalSchedule(s);
 				}
 			} catch (ScheduleManagerException e) {

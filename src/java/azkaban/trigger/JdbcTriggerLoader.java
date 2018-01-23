@@ -57,7 +57,8 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 	private static String REMOVE_TRIGGER = 
 			"DELETE FROM " + triggerTblName + " WHERE trigger_id=?";
 	
-	private static String UPDATE_TRIGGER = 
+	//zhongshu-comment 往表插入数据的sql语句
+	private static String UPDATE_TRIGGER =
 			"UPDATE " + triggerTblName + " SET trigger_source=?, modify_time=?, enc_type=?, data=? WHERE trigger_id=?";
 	
 	public EncodingType getDefaultEncodingType() {
@@ -138,6 +139,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 		}
 	}
 	
+	//zhongshu-comment
 	@Override
 	public void addTrigger(Trigger t) throws TriggerLoaderException {
 		logger.info("Inserting trigger " + t.toString() + " into db.");
@@ -154,6 +156,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 		}
 	}
 
+	//zhongshu-comment
 	private synchronized void addTrigger(Connection connection, Trigger t, EncodingType encType) throws TriggerLoaderException {
 		
 		QueryRunner runner = new QueryRunner();
@@ -161,7 +164,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 		long id;
 		
 		try {
-			runner.update(connection, ADD_TRIGGER, DateTime.now().getMillis());
+			runner.update(connection, ADD_TRIGGER, DateTime.now().getMillis());//zhongshu-comment insert
 			connection.commit();
 			id = runner.query(connection, LastInsertID.LAST_INSERT_ID, new LastInsertID());
 
@@ -171,7 +174,8 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 			}
 			
 			t.setTriggerId((int)id);
-			updateTrigger(t);
+			updateTrigger(t);//zhongshu-comment
+
 			logger.info("uploaded trigger " + t.getDescription());
 		} catch (SQLException e) {
 			throw new TriggerLoaderException("Error creating trigger.", e);
@@ -196,6 +200,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 		}
 	}
 		
+	//zhongshu-comment 这个才是真正往triggers表插入数据的方法
 	private void updateTrigger(Connection connection, Trigger t, EncodingType encType) throws TriggerLoaderException {
 
 		String json = JSONUtils.toJSON(t.toJson());
@@ -217,13 +222,14 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 	
 		try {
 			int updates =  runner.update( connection, 
-					UPDATE_TRIGGER, 
+					UPDATE_TRIGGER, //zhongshu-comment sql语句
 					t.getSource(),
 					t.getLastModifyTime(),
 					encType.getNumVal(),
 					data,
 					t.getTriggerId());
 			connection.commit();
+
 			if (updates == 0) {
 				throw new TriggerLoaderException("No trigger has been updated.");
 				//logger.error("No trigger is updated!");

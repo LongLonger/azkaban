@@ -763,7 +763,7 @@ public class AzkabanWebServer extends AzkabanServer {
 		root.addServlet(new ServletHolder(new ProjectManagerServlet()),"/manager");
 		root.addServlet(new ServletHolder(new ExecutorServlet()),"/executor");
 		root.addServlet(new ServletHolder(new HistoryServlet()), "/history");
-		root.addServlet(new ServletHolder(new ScheduleServlet()),"/schedule");
+		root.addServlet(new ServletHolder(new ScheduleServlet()),"/schedule"); //zhongshu-comment
 		root.addServlet(new ServletHolder(new JMXHttpServlet()),"/jmx");
 		root.addServlet(new ServletHolder(new TriggerManagerServlet()),"/triggers");
 		

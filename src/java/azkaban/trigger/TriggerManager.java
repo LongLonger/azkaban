@@ -108,6 +108,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 		return actionTypeLoader;
 	}
 
+	//zhongshu-comment
 	public void insertTrigger(Trigger t) throws TriggerManagerException {
 		synchronized (syncObj) {
 			try {
@@ -145,6 +146,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 		}
 	}
 	
+	//zhongshu-comment
 	public void updateTrigger(Trigger t) throws TriggerManagerException {
 		synchronized (syncObj) {
 			runnerThread.deleteTrigger(triggerIdMap.get(t.getTriggerId()));
@@ -400,6 +402,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 		return triggers;
 	}
 
+	//zhongshu-comment
 	@Override
 	public void insertTrigger(Trigger t, String user) throws TriggerManagerException {
 		insertTrigger(t);
@@ -410,6 +413,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 		removeTrigger(id);
 	}
 
+	//zhongshu-comment
 	@Override
 	public void updateTrigger(Trigger t, String user) throws TriggerManagerException {
 		updateTrigger(t);
