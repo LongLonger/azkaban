@@ -57,9 +57,9 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 	private static String REMOVE_TRIGGER = 
 			"DELETE FROM " + triggerTblName + " WHERE trigger_id=?";
 	
-	//zhongshu-comment 往表插入数据的sql语句
+	//zhongshu-comment 往表插入数据的sql语句，整个JdbcTriggerLoader类也就只有这一方法是写入实质性字段！！
 	private static String UPDATE_TRIGGER =
-			"UPDATE " + triggerTblName + " SET trigger_source=?, modify_time=?, enc_type=?, data=? WHERE trigger_id=?";
+			"UPDATE " + triggerTblName + " SET trigger_source=?, modify_time=?, enc_type=?, data=?, custom_time_flag=? WHERE trigger_id=?";
 	
 	public EncodingType getDefaultEncodingType() {
 		return defaultEncodingType;
@@ -164,7 +164,8 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 		long id;
 		
 		try {
-			runner.update(connection, ADD_TRIGGER, DateTime.now().getMillis());//zhongshu-comment insert
+			//zhongshu-comment insert 只是insert了modify_time字段、获取了一个自增id，并没有写入实质性有用的字段
+			runner.update(connection, ADD_TRIGGER, DateTime.now().getMillis());
 			connection.commit();
 			id = runner.query(connection, LastInsertID.LAST_INSERT_ID, new LastInsertID());
 
@@ -174,7 +175,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 			}
 			
 			t.setTriggerId((int)id);
-			updateTrigger(t);//zhongshu-comment
+			updateTrigger(t);//zhongshu-comment 这句才是写入实质性字段的语句，整个JdbcTriggerLoader类也就只有这一方法是写入实质性字段！！
 
 			logger.info("uploaded trigger " + t.getDescription());
 		} catch (SQLException e) {
@@ -227,6 +228,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 					t.getLastModifyTime(),
 					encType.getNumVal(),
 					data,
+					customTimeFlag,
 					t.getTriggerId());
 			connection.commit();
 

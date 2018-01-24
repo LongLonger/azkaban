@@ -55,6 +55,9 @@ public class Schedule{
 	private String submitUser;
 	private String status;
 	private long submitTime;
+
+	//zhongshu-comment added by zhongshu
+	private String customTimeFlag;
 	
 	private boolean skipPastOccurrences = true;
 	
@@ -88,6 +91,7 @@ public class Schedule{
 				nextExecTime,
 				submitTime,
 				submitUser,
+				null, //zhongshu-comment added by zhongshu
 				null,
 				null
 				);
@@ -120,11 +124,13 @@ public class Schedule{
 				nextExecTime,
 				submitTime,
 				submitUser,
+				null, //zhongshu-comment added by zhongshu
 				executionOptions,
 				slaOptions
 				);
 	}
 
+	//zhongshu-comment
 	public Schedule(
 						int scheduleId,
 						int projectId,
@@ -138,6 +144,7 @@ public class Schedule{
 						long nextExecTime,
 						long submitTime,
 						String submitUser,
+						String customTimeFlag,
 						ExecutionOptions executionOptions,
 						List<SlaOption> slaOptions
 						) {
@@ -155,6 +162,9 @@ public class Schedule{
 		this.submitTime = submitTime;
 		this.executionOptions = executionOptions;
 		this.slaOptions = slaOptions;
+
+		//zhongshu-comment added by zhongshu
+		this.customTimeFlag = customTimeFlag;
 	}
 
 	public ExecutionOptions getExecutionOptions() {
@@ -403,5 +413,12 @@ public class Schedule{
 	public boolean skipPastOccurrences() {
 		return skipPastOccurrences;
 	}
-	
+
+	public String getCustomTimeFlag() {
+		return customTimeFlag;
+	}
+
+	public void setCustomTimeFlag(String customTimeFlag) {
+		this.customTimeFlag = customTimeFlag;
+	}
 }

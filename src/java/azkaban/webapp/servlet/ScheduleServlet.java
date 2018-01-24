@@ -587,6 +587,7 @@ public class ScheduleServlet extends LoginAbstractAzkabanServlet {
 		return;
 	}
 
+	//zhongshu-comment
 	private void ajaxScheduleFlow(HttpServletRequest req, HashMap<String, Object> ret, User user) throws ServletException {
 		String projectName = getParam(req, "projectName");
 		String flowName = getParam(req, "flow");
@@ -644,10 +645,15 @@ public class ScheduleServlet extends LoginAbstractAzkabanServlet {
 		}
 		
 		List<SlaOption> slaOptions = null;
-		
-		//zhongshu-comment
-		Schedule schedule = scheduleManager.scheduleFlow(-1, projectId, projectName, flowName, "ready", firstSchedTime.getMillis(), firstSchedTime.getZone(), thePeriod, DateTime.now().getMillis(), firstSchedTime.getMillis(), firstSchedTime.getMillis(), user.getUserId(), flowOptions, slaOptions);
+
+		String customTimeFlag = getParam(req, "customTimeFlag");
+
+		//zhongshu-comment 往数据库的triggers表插入一条记录，并将该schedule加入调度当中
+		Schedule schedule = scheduleManager.scheduleFlow(-1, projectId, projectName, flowName, "ready", firstSchedTime.getMillis(), firstSchedTime.getZone(), thePeriod, DateTime.now().getMillis(), firstSchedTime.getMillis(), firstSchedTime.getMillis(), user.getUserId(), customTimeFlag, flowOptions, slaOptions);
+
 		logger.info("User '" + user.getUserId() + "' has scheduled " + "[" + projectName + flowName +  " (" + projectId +")" + "].");
+
+		//zhongshu-comment to be confirmed 这行代码的作用貌似就仅仅是记录日志？？
 		projectManager.postProjectEvent(project, EventType.SCHEDULE, user.getUserId(), "Schedule " + schedule.toString() + " has been added.");
 
 		ret.put("status", "success");

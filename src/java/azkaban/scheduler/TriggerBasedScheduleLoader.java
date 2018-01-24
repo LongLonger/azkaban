@@ -42,6 +42,8 @@ public class TriggerBasedScheduleLoader implements ScheduleLoader {
 		} else {
 			t.setResetOnTrigger(false);
 		}
+
+		t.setCustomTimeFlag(s.getCustomTimeFlag());
 		return t;
 	}
 	
@@ -75,7 +77,7 @@ public class TriggerBasedScheduleLoader implements ScheduleLoader {
 	//zhongshu-comment
 	@Override
 	public void insertSchedule(Schedule s) throws ScheduleManagerException {
-		Trigger t = scheduleToTrigger(s);
+		Trigger t = scheduleToTrigger(s);//zhongshu-comment 对象之间的转换
 		try {
 			triggerManager.insertTrigger(t, t.getSubmitUser());
 			s.setScheduleId(t.getTriggerId());

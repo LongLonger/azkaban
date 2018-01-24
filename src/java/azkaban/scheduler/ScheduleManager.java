@@ -121,7 +121,7 @@ public class ScheduleManager implements TriggerAgent {
 	/**
 	 * Returns the scheduled flow for the flow name
 	 * 
-	 * @param id
+	 * @param
 	 * @return
 	 * @throws ScheduleManagerException 
 	 */
@@ -134,7 +134,7 @@ public class ScheduleManager implements TriggerAgent {
 	/**
 	 * Returns the scheduled flow for the scheduleId
 	 * 
-	 * @param id
+	 * @param
 	 * @return
 	 * @throws ScheduleManagerException 
 	*/
@@ -146,7 +146,7 @@ public class ScheduleManager implements TriggerAgent {
 	/**
 	 * Removes the flow from the schedule if it exists.
 	 * 
-	 * @param id
+	 * @param
 	 * @throws ScheduleManagerException 
 	 */
 
@@ -160,7 +160,7 @@ public class ScheduleManager implements TriggerAgent {
 	/**
 	 * Removes the flow from the schedule if it exists.
 	 * 
-	 * @param id
+	 * @param
 	 */
 	public synchronized void removeSchedule(Schedule sched) {
 		Pair<Integer,String> identityPairMap = sched.getScheduleIdentityPair();
@@ -210,10 +210,11 @@ public class ScheduleManager implements TriggerAgent {
 			final long nextExecTime,
 			final long submitTime,
 			final String submitUser,
+			final String customTimeFlag,
 			ExecutionOptions execOptions,
 			List<SlaOption> slaOptions
 			) {
-		Schedule sched = new Schedule(scheduleId, projectId, projectName, flowName, status, firstSchedTime, timezone, period, lastModifyTime, nextExecTime, submitTime, submitUser, execOptions, slaOptions);
+		Schedule sched = new Schedule(scheduleId, projectId, projectName, flowName, status, firstSchedTime, timezone, period, lastModifyTime, nextExecTime, submitTime, submitUser, customTimeFlag, execOptions, slaOptions);
 		logger.info("Scheduling flow '" + sched.getScheduleName() + "' for "
 				+ _dateFormat.print(firstSchedTime) + " with a period of "
 				+ period == null ? "(non-recurring)" : period);
@@ -225,7 +226,7 @@ public class ScheduleManager implements TriggerAgent {
 	/**
 	 * Schedules the flow, but doesn't save the schedule afterwards.
 	 * 
-	 * @param flow
+	 * @param s
 	 */
 	private synchronized void internalSchedule(Schedule s) {
 		scheduleIDMap.put(s.getScheduleId(), s);
@@ -243,13 +244,13 @@ public class ScheduleManager implements TriggerAgent {
 		if(s.updateTime()) {
 			try {
 				if(exist == null) {//zhongshu-comment 不存在就往表插入一条新纪录
-					loader.insertSchedule(s);//zhongshu-comment 往triggers表新插入一条记录
-					internalSchedule(s);
+					loader.insertSchedule(s);//zhongshu-comment 往triggers表insert一条新记录
+					internalSchedule(s);//zhongshu-comment 将该schedule加入调度当中
 				}
 				else{
 					s.setScheduleId(exist.getScheduleId());
 					loader.updateSchedule(s);//zhongshu-comment 先移除掉list中的Trigger，然后再将更新的内容update到triggers表中
-					internalSchedule(s);
+					internalSchedule(s);//zhongshu-comment 将该schedule加入调度当中
 				}
 			} catch (ScheduleManagerException e) {
 				// TODO Auto-generated catch block

@@ -51,6 +51,9 @@ public class Trigger {
 	private boolean resetOnExpire = true;
 	
 	private long nextCheckTime = -1;
+
+	//zhongshu-comment added by zhongshu
+	private String customTimeFlag;
 	
 	@SuppressWarnings("unused")
 	private Trigger() throws TriggerManagerException {	
@@ -468,5 +471,11 @@ public class Trigger {
 		
 	}
 
-	
+	public String getCustomTimeFlag() {
+		return customTimeFlag;
+	}
+
+	public void setCustomTimeFlag(String customTimeFlag) {
+		this.customTimeFlag = customTimeFlag;
+	}
 }

@@ -71,7 +71,7 @@ azkaban.SchedulePanelView = Backbone.View.extend({
         scheduleData.scheduleDate = scheduleDate;
         scheduleData.is_recurring = is_recurring;
         scheduleData.period = period;
-        scheduleData.customTimeFlag=customTimeFlag;//zhongshu-comment
+        scheduleData.customTimeFlag=customTimeFlag;//zhongshu-comment 增加一个参数：customTimeFlag
 
         var successHandler = function (data) {
             if (data.error) {

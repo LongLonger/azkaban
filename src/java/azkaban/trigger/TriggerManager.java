@@ -112,11 +112,11 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 	public void insertTrigger(Trigger t) throws TriggerManagerException {
 		synchronized (syncObj) {
 			try {
-				triggerLoader.addTrigger(t);
+				triggerLoader.addTrigger(t);//zhongshu-comment 插入到数据库的triggers表中
 			} catch (TriggerLoaderException e) {
 				throw new TriggerManagerException(e);
 			}
-			runnerThread.addTrigger(t);
+			runnerThread.addTrigger(t);//zhongshu-comment 将schedule加到调度list中
 			triggerIdMap.put(t.getTriggerId(), t);
 		}
 	}
