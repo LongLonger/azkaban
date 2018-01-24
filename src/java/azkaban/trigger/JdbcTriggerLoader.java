@@ -228,7 +228,7 @@ public class JdbcTriggerLoader extends AbstractJdbcLoader implements TriggerLoad
 					t.getLastModifyTime(),
 					encType.getNumVal(),
 					data,
-					customTimeFlag,
+					t.getCustomTimeFlag(),
 					t.getTriggerId());
 			connection.commit();
 

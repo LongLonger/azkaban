@@ -478,4 +478,26 @@ public class Trigger {
 	public void setCustomTimeFlag(String customTimeFlag) {
 		this.customTimeFlag = customTimeFlag;
 	}
+
+	@Override
+	public String toString() {
+		return "Trigger{" +
+				"triggerId=" + triggerId +
+				", lastModifyTime=" + lastModifyTime +
+				", submitTime=" + submitTime +
+				", submitUser='" + submitUser + '\'' +
+				", source='" + source + '\'' +
+				", status=" + status +
+				", triggerCondition=" + triggerCondition +
+				", expireCondition=" + expireCondition +
+				", actions=" + actions +
+				", expireActions=" + expireActions +
+				", info=" + info +
+				", context=" + context +
+				", resetOnTrigger=" + resetOnTrigger +
+				", resetOnExpire=" + resetOnExpire +
+				", nextCheckTime=" + nextCheckTime +
+				", customTimeFlag='" + customTimeFlag + '\'' +
+				'}';
+	}
 }

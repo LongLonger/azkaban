@@ -146,6 +146,7 @@ public class TriggerBasedScheduleLoader implements ScheduleLoader {
 					ck.getNextCheckTime(),
 					t.getSubmitTime(),
 					t.getSubmitUser(),
+					t.getCustomTimeFlag(),//zhongshu-comment todo select triggers表的时候记得select上custom_time_flag字段
 					act.getExecutionOptions(),
 					act.getSlaOptions());
 			return s;
