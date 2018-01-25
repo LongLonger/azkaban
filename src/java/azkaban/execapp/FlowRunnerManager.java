@@ -410,6 +410,7 @@ public class FlowRunnerManager implements EventListener {
 			}
 		}
 
+		flow.setCustomTimeFlag(req.getParameter(ExecutionOptions.CUSTOM_TIME_FLAG));
 		//zhongshu-comment FlowRunner是一个线程，里面的run()方法就是具体执行flow的代码了
 		FlowRunner runner = new FlowRunner(flow, executorLoader, projectLoader, jobtypeManager);
 		runner.setFlowWatcher(watcher)
@@ -423,6 +424,7 @@ public class FlowRunnerManager implements EventListener {
 		try {
 			String rerunExecid = req.getParameter(ExecutionOptions.RERUN_EXECID);
 			runner.setRerunExecid(rerunExecid);
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

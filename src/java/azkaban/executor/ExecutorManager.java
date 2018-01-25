@@ -495,7 +495,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			}
 		}
 	}
-	//zhongshu-comment
+	//zhongshu-comment 执行一个execution
 	@Override
 	public String submitExecutableFlow(ExecutableFlow exflow, String userId) throws ExecutorManagerException {
 		synchronized(exflow) {
@@ -505,7 +505,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			String flowId = exflow.getFlowId();
 			exflow.setSubmitUser(userId);
 
-			//zhongshu-comment question如果是重跑任务时不新增一个execution，那么这个submit_time值不应该修改吧？？
+			//zhongshu-comment question 如果是重跑任务时不新增一个execution，那么这个submit_time值不应该修改吧？？
 			exflow.setSubmitTime(System.currentTimeMillis());
 			
 			List<Integer> running = getRunningFlows(projectId, flowId);
@@ -541,7 +541,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			// The exflow id is set by the loader. So it's unavailable until after this call.
 			//zhongshu-comment modified by zhongshu，原来就只有executorLoader.uploadExecutableFlow(exflow)这一行，因为原来的逻辑是：新跑或重跑都插入一条新记录
 			System.out.println("***zhongshu*** " + options.getRerunExecid());
-			if (null != options.getRerunExecid() && !"".equals(options.getRerunExecid().trim())) { //zhongshu-comment 如果是重跑，就只更新一些字段吧，问题是更新哪些字段呢？question
+			if (null != options.getRerunExecid() && !"".equals(options.getRerunExecid().trim())) { //zhongshu-comment 如果是重跑，就只更新记录的一些字段吧，问题是更新哪些字段呢？question
 				//todo added by zhongshu
 				System.out.println("***zhongshu*** " + "重跑1");
 
@@ -564,11 +564,19 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			ExecutionReference reference = new ExecutionReference(exflow.getExecutionId(), executorHost, executorPort);
 			executorLoader.addActiveExecutableReference(reference);
 			try {
+
+				/*
+				zhongshu-comment 重要逻辑
+				如果前端请求需要增加参数，而且参数需要从azkaban-web进程传到azkaban-exec进程，
+				那就创建Pair k-v对象，将Pair对象传到callExecutorServer()方法中，该方法有一个可变参数Pair<String, String> ... params
+				 */
 				//zhongshu-comment: 重要代码 added by zhongshu rerunExecid就是在这里传进去的
-				Pair<String, String> pair = new Pair<String, String>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
+				Pair<String, String> rerunExecIdPair = new Pair<String, String>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
+				Pair<String, String> customTimeFlagPair = new Pair<String, String>(ExecutionOptions.CUSTOM_TIME_FLAG, exflow.getCustomTimeFlag());
 
 				//zhongshu-comment 关键代码，向executor server发http请求执行flow
-				callExecutorServer(reference,	ConnectorParams.EXECUTE_ACTION, pair);
+				callExecutorServer(reference, ConnectorParams.EXECUTE_ACTION, rerunExecIdPair, customTimeFlagPair);
+
 				runningFlows.put(exflow.getExecutionId(), new Pair<ExecutionReference, ExecutableFlow>(reference, exflow));
 				
 				message += "Execution submitted successfully with exec id " + exflow.getExecutionId();
@@ -642,6 +650,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			builder.setParameter(ConnectorParams.USER_PARAM, user);
 		}
 		
+		//zhongshu-comment 重点代码
 		if (params != null) {
 			for (Pair<String, String> pair: params) {
 				builder.setParameter(pair.getFirst(), pair.getSecond());

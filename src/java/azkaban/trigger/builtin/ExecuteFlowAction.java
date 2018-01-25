@@ -54,6 +54,9 @@ public class ExecuteFlowAction implements TriggerAction {
 	private ExecutionOptions executionOptions = new ExecutionOptions();
 	private List<SlaOption> slaOptions;
 	
+	//zhongshu-comment added by zhongshu
+	private String customTimeFlag;
+
 	private static Logger logger = Logger.getLogger(ExecuteFlowAction.class);
 	
 	public ExecuteFlowAction(String actionId, int projectId, String projectName, String flowName, String submitUser, ExecutionOptions executionOptions, List<SlaOption> slaOptions) {
@@ -198,6 +201,7 @@ public class ExecuteFlowAction implements TriggerAction {
 		return jsonObj;
 	}
 
+	//zhongshu-comment
 	@Override
 	public void doAction() throws Exception {
 		if(projectManager == null || executorManager == null) {
@@ -230,9 +234,18 @@ public class ExecuteFlowAction implements TriggerAction {
 			executionOptions.setSuccessEmails(flow.getSuccessEmails());
 		}
 		exflow.setExecutionOptions(executionOptions);
-		
+
+		/*
+		zhongshu-comment added by zhongshu
+		将triggers表的custom_time_flag字段传到ExecutableFlow对象中，
+		ExecutableFlow对象会传到ExecutorManager.submitExecutableFlow()，该方法是用来执行一个execution的
+		 */
+		exflow.setCustomTimeFlag(getCustomTimeFlag());
+
 		try{
+			//zhongshu-comment 关键代码，执行一个execution，和手动临时执行的那种逻辑一样、调的是同一个方法
 			executorManager.submitExecutableFlow(exflow, submitUser);
+
 //			Map<String, Object> outputProps = new HashMap<String, Object>();
 //			outputProps.put(EXEC_ID, exflow.getExecutionId());
 //			context.put(actionId, outputProps);
@@ -293,4 +306,11 @@ public class ExecuteFlowAction implements TriggerAction {
 		return actionId;
 	}
 
+	public String getCustomTimeFlag() {
+		return customTimeFlag;
+	}
+
+	public void setCustomTimeFlag(String customTimeFlag) {
+		this.customTimeFlag = customTimeFlag;
+	}
 }

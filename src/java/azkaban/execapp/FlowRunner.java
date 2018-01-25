@@ -121,6 +121,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 	 */
 	private String rerunExecid = "";
 	private int currentRerunTime;
+	private String customTimeFlag;
 
 	/**
 	 * Constructor. 
@@ -176,6 +177,14 @@ public class FlowRunner extends EventHandler implements Runnable {
 		this.rerunExecid = rerunExecid;
 	}
 
+	public String getCustomTimeFlag() {
+		return customTimeFlag;
+	}
+
+	public void setCustomTimeFlag(String customTimeFlag) {
+		this.customTimeFlag = customTimeFlag;
+	}
+
 	public FlowRunner setFlowWatcher(FlowWatcher watcher) {
 		this.watcher = watcher;
 		return this;
@@ -215,7 +224,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 			}
 
 			//zhongshu-comment 重点代码，加载Runtime param参数，包括我加的custom.day、custom.hour
-			setupFlowExecution(rerunExecid);//zhongshu-comment 应该是执行到这一步就报错了
+			setupFlowExecution(rerunExecid);//zhongshu-comment
 
 			flow.setStartTime(System.currentTimeMillis());
 
@@ -266,7 +275,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 		int version = flow.getVersion();
 		String flowId = flow.getFlowId();
 
-		//zhongshu-comment 重点代码
+		//zhongshu-comment 重点代码，加载Runtime param参数，包括我加的自定义参数custom.day、custom.hour
 		// Add a bunch of common azkaban properties
 		Props commonFlowProps = PropsUtils.addCommonFlowProperties(this.globalProps, flow);
 

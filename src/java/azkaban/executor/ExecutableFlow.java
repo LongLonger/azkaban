@@ -48,7 +48,8 @@ public class ExecutableFlow extends ExecutableFlowBase {
 	
 	private HashSet<String> proxyUsers = new HashSet<String>();
 	private ExecutionOptions executionOptions;
-	
+
+
 	public ExecutableFlow(Project project, Flow flow) {
 		this.projectId = project.getId();
 		this.version = project.getVersion();
@@ -230,5 +231,5 @@ public class ExecutableFlow extends ExecutableFlowBase {
 		super.resetForRetry();
 		this.setStatus(Status.RUNNING);
 	}
-	
+
 }

@@ -1,5 +1,6 @@
 package azkaban.utils;
 
+import azkaban.executor.ExecutableNode;
 import azkaban.flow.CommonJobProperties;
 
 import java.text.ParseException;
@@ -20,7 +21,7 @@ public class CustomDateUtil {
                 System.out.printf("submitTime=" + submitTime);
                 if (null != submitTime) {
                     cal.setTimeInMillis(submitTime);
-                    System.out.println("has submit time");
+                    System.out.println("has submit time");//zhongshu-comment 如果没有submitTime的话即不是重跑，那就使用customTimeFlag标识的那个时间
                 } else {
                     System.out.printf("no submit time");
                 }
@@ -44,6 +45,56 @@ public class CustomDateUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void customDate(Props props, Long submitTime, String customTimeFlag) {
+        try {
+            Calendar cal = Calendar.getInstance();
+
+            try {
+                System.out.println("submitTime=" + submitTime);
+                if (null != submitTime) {
+                    cal.setTimeInMillis(submitTime);
+                    System.out.println("has submit time");//zhongshu-comment 如果没有submitTime的话即不是重跑，那就使用customTimeFlag标识的那个时间
+
+                    /*
+                    todo submitTime是当时提交任务的时间，而不是跑任务的时间
+                    跑任务的时间还是要根据customTimeFlag来判断具体用哪个时间
+                    那我应该要在executions_flow表加一个custom_time_flag字段咯？？
+                     */
+
+
+                } else {
+                    System.out.println("no submit time");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
+            SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHHmm");
+
+            if (ExecutableNode.CUSTOM_LAST_HOUR.equals(customTimeFlag)) {
+                //todo
+            } else if (ExecutableNode.CUSTOM_LAST_DAY.equals(customTimeFlag)) {
+
+            }
+
+
+            props.put(CommonJobProperties.CUSTOM_DAY, sdf1.format(cal.getTime()));
+            props.put(CommonJobProperties.CUSTOM_HOUR, sdf2.format(cal.getTime()));
+            props.put(CommonJobProperties.CUSTOM_MINUTE, sdf3.format(cal.getTime()));
+
+            cal.add(Calendar.HOUR_OF_DAY, -1);
+            props.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf2.format(cal.getTime()));
+
+            cal.add(Calendar.DATE, -1);
+            props.put(CommonJobProperties.CUSTOM_LAST_DAY, sdf1.format(cal.getTime()));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     public static void main(String[] args) throws ParseException {

@@ -176,14 +176,17 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 		return checkerTypeLoader.getSupportedCheckers();
 	}
 	
+	//zhongshu-comment
 	private class TriggerScannerThread extends Thread {
-		private BlockingQueue<Trigger> triggers;
+		private BlockingQueue<Trigger> triggers; //zhongshu-comment
 		private Map<Integer, ExecutableFlow> justFinishedFlows;
 		private boolean shutdown = false;
 		//private AtomicBoolean stillAlive = new AtomicBoolean(true);
 		private final long scannerInterval;
 		
 		public TriggerScannerThread(long scannerInterval) {
+
+			//zhongshu-comment triggers列表是有序的，排序规则见TriggerComparator类
 			triggers = new PriorityBlockingQueue<Trigger>(1, new TriggerComparator());
 			justFinishedFlows = new ConcurrentHashMap<Integer, ExecutableFlow>();
 			this.setName("TriggerRunnerManager-Trigger-Scanner-Thread");
@@ -224,7 +227,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 						scannerStage = "Ready to start a new scan cycle at " + lastRunnerThreadCheckTime;
 						
 						try {
-							checkAllTriggers();
+							checkAllTriggers();  //zhongshu-comment 重点代码，看看
 							justFinishedFlows.clear();
 						} catch(Exception e) {
 							e.printStackTrace();
@@ -233,7 +236,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 							t.printStackTrace();
 							logger.error(t.getMessage());
 						}
-					
+						//zhongshu-comment 完成翻转所有的trigger(或称schedule)
 						scannerStage = "Done flipping all triggers.";
 						
 						runnerThreadIdleTime = scannerInterval - (System.currentTimeMillis() - lastRunnerThreadCheckTime);
@@ -250,11 +253,12 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 			}
 		}
 		
+		//zhongshu-comment 重点代码
 		private void checkAllTriggers() throws TriggerManagerException {
 			long now = System.currentTimeMillis();
 			
 			// sweep through the rest of them
-			for(Trigger t : triggers) {
+			for (Trigger t : triggers) {
 				scannerStage = "Checking for trigger " + t.getTriggerId();
 				
 				boolean shouldSkip = true;
@@ -265,6 +269,7 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 						shouldSkip = false;
 					}
 				}
+
 				if(shouldSkip && t.getNextCheckTime() > now) {
 					shouldSkip = false;
 				}
@@ -276,9 +281,9 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 				logger.info("Checking trigger " + t.getTriggerId());
 				if(t.getStatus().equals(TriggerStatus.READY)) {
 					if(t.triggerConditionMet()) {
-						onTriggerTrigger(t);
+						onTriggerTrigger(t); //zhongshu-comment 重点代码
 					} else if (t.expireConditionMet()) {
-						onTriggerExpire(t);
+						onTriggerExpire(t); //zhongshu-comment 重点代码
 					}
 				}
 				if(t.getStatus().equals(TriggerStatus.EXPIRED) && t.getSource().equals("azkaban")) {
@@ -289,12 +294,19 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 			}
 		}
 		
+		//zhongshu-comment
 		private void onTriggerTrigger(Trigger t) throws TriggerManagerException {
+
+			/*
+			zhongshu-comment 这个actions列表就只有一个元素，元素的实现类是ExecuteFlowAction，我是在这些代码发现actions列表只有一个元素的：
+			TriggerBasedScheduleLoader.java的scheduleToTrigger()方法里调用了：List<TriggerAction> actions = createActions(s)，
+			跳进去createActions(s)方法里看就知道返回的actions列表就只有一个元素
+			 */
 			List<TriggerAction> actions = t.getTriggerActions();
 			for(TriggerAction action : actions) {
 				try {
 					logger.info("Doing trigger actions");
-					action.doAction();
+					action.doAction(); //zhongshu-comment ExecuteFlowAction
 				} catch (Exception e) {
 					logger.error("Failed to do action " + action.getDescription(), e);
 				} catch (Throwable th) {
@@ -314,7 +326,8 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 				throw new TriggerManagerException(e);
 			}
 		}
-		
+
+		//zhongshu-comment
 		private void onTriggerExpire(Trigger t) throws TriggerManagerException {
 			List<TriggerAction> expireActions = t.getExpireActions();
 			for(TriggerAction action : expireActions) {
@@ -341,13 +354,14 @@ public class TriggerManager extends EventHandler implements TriggerManagerAdapte
 			}
 		}
 		
+		//zhongshu-comment 按时间升序排列
 		private class TriggerComparator implements Comparator<Trigger> {
 			@Override
 			public int compare(Trigger arg0, Trigger arg1) {
 				long first = arg1.getNextCheckTime();
 				long second = arg0.getNextCheckTime();
 				
-				if(first == second) {
+				if (first == second) {
 					return 0;
 				} else if (first < second) {
 					return 1;

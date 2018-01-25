@@ -55,6 +55,11 @@ public class Trigger {
 	//zhongshu-comment added by zhongshu
 	private String customTimeFlag;
 	
+	//zhongshu-comment 记得删掉
+	public Trigger(long nextCheckTime) {
+		this.nextCheckTime = nextCheckTime;
+	}
+
 	@SuppressWarnings("unused")
 	private Trigger() throws TriggerManagerException {	
 		throw new TriggerManagerException("Triggers should always be specified");

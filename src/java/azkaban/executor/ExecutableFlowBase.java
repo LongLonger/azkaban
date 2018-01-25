@@ -42,7 +42,18 @@ public class ExecutableFlowBase extends ExecutableNode {
 	
 	private HashMap<String, FlowProps> flowProps = new HashMap<String, FlowProps>();
 	private String flowId;
-	
+
+	//zhongshu-comment
+	private String customTimeFlag;
+
+	public String getCustomTimeFlag() {
+		return customTimeFlag;
+	}
+
+	public void setCustomTimeFlag(String customTimeFlag) {
+		this.customTimeFlag = customTimeFlag;
+	}
+
 	public ExecutableFlowBase(Project project, Node node, Flow flow, ExecutableFlowBase parent) {
 		super(node, parent);
 

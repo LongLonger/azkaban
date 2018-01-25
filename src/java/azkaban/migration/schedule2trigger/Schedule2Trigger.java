@@ -206,7 +206,9 @@ public class Schedule2Trigger {
 					}
 				}
 				
-				azkaban.scheduler.Schedule schedule = new azkaban.scheduler.Schedule(-1, projectId, projectName, flowName, "ready", firstSchedTimeLong, timezone, period, DateTime.now().getMillis(), nextExecTimeLong, submitTimeLong, submitUser, executionOptions, slaOptions);
+				//zhongshu-comment question todo 倒数第3个参数null是我自己加的，也许会有问题，先放着
+				azkaban.scheduler.Schedule schedule = new azkaban.scheduler.Schedule(-1, projectId, projectName, flowName, "ready", firstSchedTimeLong, timezone, period, DateTime.now().getMillis(),
+						nextExecTimeLong, submitTimeLong, submitUser, null, executionOptions, slaOptions);
 				Trigger t = scheduleToTrigger(schedule);
 				logger.info("Ready to insert trigger " + t.getDescription());
 				triggerLoader.addTrigger(t);

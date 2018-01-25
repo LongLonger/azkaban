@@ -45,7 +45,13 @@ public class ExecutableNode {
 	public static final String PROPS_SOURCE_PARAM = "propSource";
 	public static final String JOB_SOURCE_PARAM = "jobSource";
 	public static final String OUTPUT_PROPS_PARAM = "outputProps";
-	
+
+	//zhongshu-comment added by zhongshu
+	public static final String CUSTOM_HOUR = "custom_hour";
+	public static final String CUSTOM_LAST_HOUR = "custom_last_hour";
+	public static final String CUSTOM_DAY = "custom_day";
+	public static final String CUSTOM_LAST_DAY = "custom_last_day";
+
 	private String id;
 	private String type = null;
 	private Status status = Status.READY;

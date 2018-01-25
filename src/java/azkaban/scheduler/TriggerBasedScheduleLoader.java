@@ -43,13 +43,16 @@ public class TriggerBasedScheduleLoader implements ScheduleLoader {
 			t.setResetOnTrigger(false);
 		}
 
+		//zhongshu-comment added by zhongshu
 		t.setCustomTimeFlag(s.getCustomTimeFlag());
+
 		return t;
 	}
 	
 	private List<TriggerAction> createActions (Schedule s) {
 		List<TriggerAction> actions = new ArrayList<TriggerAction>();
 		ExecuteFlowAction executeAct = new ExecuteFlowAction("executeFlowAction", s.getProjectId(), s.getProjectName(), s.getFlowName(), s.getSubmitUser(), s.getExecutionOptions(), s.getSlaOptions());
+		executeAct.setCustomTimeFlag(s.getCustomTimeFlag()); //zhongshu-comment added by zhongshu
 		actions.add(executeAct);
 		
 		return actions;
