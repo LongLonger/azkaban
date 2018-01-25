@@ -194,7 +194,7 @@ public class PropsUtils {
         return buffer.toString();
     }
 
-    public static Props addCommonFlowProperties(Props parentProps, final ExecutableFlowBase flow) {
+    public static Props addCommonFlowProperties(Props parentProps, final ExecutableFlowBase flow) throws Exception {
         Props props = new Props(parentProps);
 
         props.put(CommonJobProperties.FLOW_ID, flow.getFlowId());
@@ -216,7 +216,8 @@ public class PropsUtils {
         props.put(CommonJobProperties.FLOW_START_TIMEZONE, loadTime.toString("ZZZZ"));
 
         //zhongshu-comment added by zhongshu
-        CustomDateUtil.customDate(props, null);
+//        CustomDateUtil.customDate(props, null);
+        CustomDateUtil.customTime(props, null, flow.getCustomTimeFlag());
 
         return props;
     }

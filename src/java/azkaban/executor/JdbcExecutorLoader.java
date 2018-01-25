@@ -1178,22 +1178,29 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 	//zhongshu-comment added by zhongshu
 	private static class FetchSubmitTimeHandler
-			implements ResultSetHandler<Long> {
+			implements ResultSetHandler<ExecutableFlow> {
 		private static String SQL =
-				"SELECT submit_time FROM execution_flows WHERE exec_id=?";
+				"SELECT submit_time,custom_time_flag FROM execution_flows WHERE exec_id=?";
 
 		@Override
-		public Long handle(ResultSet rs) throws SQLException {
+		public ExecutableFlow handle(ResultSet rs) throws SQLException {
+			ExecutableFlow exFlow = new ExecutableFlow();
 			long submitTime = -12345;
+			exFlow.setSubmitTime(submitTime);
+
 			if (rs.next()) {
 				try {
 					submitTime = rs.getLong("submit_time");
+					String customTimeFlag = rs.getString("custom_time_flag");
+
+					exFlow.setSubmitTime(submitTime);
+					exFlow.setCustomTimeFlag(customTimeFlag);
 				}
 				catch (Exception e) {
 					throw new SQLException("query submit_time fail! ", e);
 				}
 			}
-			return submitTime;
+			return exFlow;
 		}
 	}
 
@@ -1202,12 +1209,13 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		if (rerunExecid != null && !rerunExecid.trim().equals("")) {
 			//查询数据库的execution_flows表的submit_time字段
 			QueryRunner runner = createQueryRunner();
-			long submitTime = runner.query(FetchSubmitTimeHandler.SQL, new JdbcExecutorLoader.FetchSubmitTimeHandler(), rerunExecid);
-			if (submitTime == -12345) {
+			ExecutableFlow exFlow = runner.query(FetchSubmitTimeHandler.SQL, new JdbcExecutorLoader.FetchSubmitTimeHandler(), rerunExecid);
+			if (exFlow.getSubmitTime() == -12345) {
 				throw new Exception("query submit time fail!");
 			} else {
 
-				CustomDateUtil.customDate(commonFlowProps, submitTime);
+//				CustomDateUtil.customDate(commonFlowProps, submitTime);
+				CustomDateUtil.customTime(commonFlowProps, exFlow.getSubmitTime(), exFlow.getCustomTimeFlag());
 			}
 		}
 	}

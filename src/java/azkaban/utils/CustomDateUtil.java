@@ -55,15 +55,14 @@ public class CustomDateUtil {
             try {
                 System.out.println("submitTime=" + submitTime);
                 if (null != submitTime) {
-                    cal.setTimeInMillis(submitTime);
-                    System.out.println("has submit time");//zhongshu-comment 如果没有submitTime的话即不是重跑，那就使用customTimeFlag标识的那个时间
-
                     /*
-                    todo submitTime是当时提交任务的时间，而不是跑任务的时间
+                    zhongshu-comment submitTime是当时提交任务的时间，而不是跑任务的时间
                     跑任务的时间还是要根据customTimeFlag来判断具体用哪个时间
-                    那我应该要在executions_flow表加一个custom_time_flag字段咯？？
+                    所以要在executions_flow表加一个custom_time_flag字段，已加！
                      */
 
+                    cal.setTimeInMillis(submitTime);
+                    System.out.println("has submit time");//zhongshu-comment 如果没有submitTime的话即不是重跑，那就使用customTimeFlag标识的那个时间
 
                 } else {
                     System.out.println("no submit time");
@@ -76,26 +75,29 @@ public class CustomDateUtil {
             SimpleDateFormat hourFormat = new SimpleDateFormat("yyyyMMddHH");
             SimpleDateFormat minuteFormat = new SimpleDateFormat("yyyyMMddHHmm");
 
-            if (ExecutableNode.CUSTOM_LAST_HOUR.equals(customTimeFlag)) {
+            System.out.println("===zhongshu=== customTimeFlag=" + customTimeFlag);
+            if (null != customTimeFlag && customTimeFlag.trim().length() != 0) {
+                if (ExecutableNode.CUSTOM_LAST_HOUR.equals(customTimeFlag)) {
 
-                cal.add(Calendar.HOUR_OF_DAY, -1);
-                props.put(CommonJobProperties.CUSTOM_TIME, hourFormat.format(cal.getTime()));
+                    cal.add(Calendar.HOUR_OF_DAY, -1);
+                    props.put(CommonJobProperties.CUSTOM_TIME, hourFormat.format(cal.getTime()));
 
-            } else if (ExecutableNode.CUSTOM_LAST_DAY.equals(customTimeFlag)) {
+                } else if (ExecutableNode.CUSTOM_LAST_DAY.equals(customTimeFlag)) {
 
-                cal.add(Calendar.DATE, -1);
-                props.put(CommonJobProperties.CUSTOM_TIME, dayFormat.format(cal.getTime()));
+                    cal.add(Calendar.DATE, -1);
+                    props.put(CommonJobProperties.CUSTOM_TIME, dayFormat.format(cal.getTime()));
 
-            } else if (ExecutableNode.CUSTOM_HOUR.equals(customTimeFlag)) {
+                } else if (ExecutableNode.CUSTOM_HOUR.equals(customTimeFlag)) {
 
-                props.put(CommonJobProperties.CUSTOM_TIME, hourFormat.format(cal.getTime()));
+                    props.put(CommonJobProperties.CUSTOM_TIME, hourFormat.format(cal.getTime()));
 
-            } else if (ExecutableNode.CUSTOM_DAY.equals(customTimeFlag)) {
+                } else if (ExecutableNode.CUSTOM_DAY.equals(customTimeFlag)) {
 
-                props.put(CommonJobProperties.CUSTOM_TIME, dayFormat.format(cal.getTime()));
+                    props.put(CommonJobProperties.CUSTOM_TIME, dayFormat.format(cal.getTime()));
 
-            } else {
-                throw new Exception("unknown customTimeFlag: " + customTimeFlag);
+                } else {
+                    throw new Exception("unknown customTimeFlag: " + customTimeFlag);
+                }
             }
 
 

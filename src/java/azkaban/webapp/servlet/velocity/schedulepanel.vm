@@ -74,10 +74,10 @@
 
                         <div class="col-sm-3">
                             <select id="custom_time_flag" class="form-control">
-                                <option value="last_hour">last.hour</option>
-                                <option value="hour">hour</option>
-                                <option value="last_day">last.day</option>
-                                <option value="day">day</option>
+                                <option value="custom_last_hour">last.hour</option>
+                                <option value="custom_hour">hour</option>
+                                <option value="custom_last_day">last.day</option>
+                                <option value="custom_day">day</option>
                             </select>
                         </div>
                     </div>
