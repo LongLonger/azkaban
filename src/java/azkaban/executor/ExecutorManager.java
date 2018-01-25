@@ -554,7 +554,7 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 
 			} else { //zhongshu-comment 如果是新跑一个flow，就插入一条新记录
 
-				executorLoader.uploadExecutableFlow(exflow);
+				executorLoader.uploadExecutableFlow(exflow);//zhongshu-comment 往execution_flows表新插入一条execution执行记录
 				System.out.println("===zhongshu=== " + "第一次跑");
 			}
 

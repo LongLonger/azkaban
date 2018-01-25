@@ -216,7 +216,7 @@ public class PropsUtils {
         props.put(CommonJobProperties.FLOW_START_TIMEZONE, loadTime.toString("ZZZZ"));
 
         //zhongshu-comment added by zhongshu
-        CustomDateUtil.customDate(props, null, flow.getCustomTimeFlag());
+        CustomDateUtil.customDate(props, null);
 
         return props;
     }

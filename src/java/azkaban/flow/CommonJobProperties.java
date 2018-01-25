@@ -139,6 +139,7 @@ public class CommonJobProperties {
 	public static final String CUSTOM_HOUR = "custom.hour";
 	public static final String CUSTOM_LAST_HOUR = "custom.last.hour";
 	public static final String CUSTOM_MINUTE = "custom.minute"; //zhongshu-comment: 为了测试重跑flow时使用的时间是否是失败那次flow的时间，所以加上分钟这个属性，不然我就要等下个小时才能测试
+	public static final String CUSTOM_TIME = "custom.time"; //zhongshu-comment：对时间做了一层抽象
 
 	public static void main(String[] args) throws IOException {
 		Process pcs = Runtime.getRuntime().exec("date +%Y%m%d");

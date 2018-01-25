@@ -47,9 +47,10 @@ public class CustomDateUtil {
         }
     }
 
-    public static void customDate(Props props, Long submitTime, String customTimeFlag) {
+    public static void customTime(Props props, Long submitTime, String customTimeFlag) throws Exception {
         try {
             Calendar cal = Calendar.getInstance();
+            Calendar anotherCal = Calendar.getInstance();
 
             try {
                 System.out.println("submitTime=" + submitTime);
@@ -71,28 +72,46 @@ public class CustomDateUtil {
                 e.printStackTrace();
             }
 
-            SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
-            SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
-            SimpleDateFormat sdf3 = new SimpleDateFormat("yyyyMMddHHmm");
+            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat hourFormat = new SimpleDateFormat("yyyyMMddHH");
+            SimpleDateFormat minuteFormat = new SimpleDateFormat("yyyyMMddHHmm");
 
             if (ExecutableNode.CUSTOM_LAST_HOUR.equals(customTimeFlag)) {
-                //todo
+
+                cal.add(Calendar.HOUR_OF_DAY, -1);
+                props.put(CommonJobProperties.CUSTOM_TIME, hourFormat.format(cal.getTime()));
+
             } else if (ExecutableNode.CUSTOM_LAST_DAY.equals(customTimeFlag)) {
 
+                cal.add(Calendar.DATE, -1);
+                props.put(CommonJobProperties.CUSTOM_TIME, dayFormat.format(cal.getTime()));
+
+            } else if (ExecutableNode.CUSTOM_HOUR.equals(customTimeFlag)) {
+
+                props.put(CommonJobProperties.CUSTOM_TIME, hourFormat.format(cal.getTime()));
+
+            } else if (ExecutableNode.CUSTOM_DAY.equals(customTimeFlag)) {
+
+                props.put(CommonJobProperties.CUSTOM_TIME, dayFormat.format(cal.getTime()));
+
+            } else {
+                throw new Exception("unknown customTimeFlag: " + customTimeFlag);
             }
 
 
-            props.put(CommonJobProperties.CUSTOM_DAY, sdf1.format(cal.getTime()));
-            props.put(CommonJobProperties.CUSTOM_HOUR, sdf2.format(cal.getTime()));
-            props.put(CommonJobProperties.CUSTOM_MINUTE, sdf3.format(cal.getTime()));
+            props.put(CommonJobProperties.CUSTOM_DAY, dayFormat.format(anotherCal.getTime()));
+            props.put(CommonJobProperties.CUSTOM_HOUR, hourFormat.format(anotherCal.getTime()));
+            props.put(CommonJobProperties.CUSTOM_MINUTE, minuteFormat.format(anotherCal.getTime()));
 
-            cal.add(Calendar.HOUR_OF_DAY, -1);
-            props.put(CommonJobProperties.CUSTOM_LAST_HOUR, sdf2.format(cal.getTime()));
+            anotherCal.add(Calendar.HOUR_OF_DAY, -1);
+            props.put(CommonJobProperties.CUSTOM_LAST_HOUR, hourFormat.format(anotherCal.getTime()));
 
-            cal.add(Calendar.DATE, -1);
-            props.put(CommonJobProperties.CUSTOM_LAST_DAY, sdf1.format(cal.getTime()));
+            anotherCal.add(Calendar.DATE, -1);
+            props.put(CommonJobProperties.CUSTOM_LAST_DAY, dayFormat.format(anotherCal.getTime()));
+
         } catch (Exception e) {
             e.printStackTrace();
+            throw e;
         }
 
     }

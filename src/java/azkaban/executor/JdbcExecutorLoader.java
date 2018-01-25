@@ -84,10 +84,12 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 			throws ExecutorManagerException, IOException {
 		final String INSERT_EXECUTABLE_FLOW = 
 				"INSERT INTO execution_flows " +  //zhongshu-comment 往表中插入一条数据，一条数据对应一次execution
-						"(project_id, flow_id, version, status, submit_time, submit_user, update_time) " + 
-						"values (?,?,?,?,?,?,?)";
+						"(project_id, flow_id, version, status, submit_time, submit_user, update_time, custom_time_flag) " +
+						"values (?,?,?,?,?,?,?,?)";
 		QueryRunner runner = new QueryRunner();
 		long submitTime = System.currentTimeMillis();//zhongshu-comment 这就是submit_time
+
+		System.out.println("===zhongshu=== customTimeFlag=" + flow.getCustomTimeFlag());
 
 		long id;
 		try {
@@ -98,10 +100,12 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 					flow.getProjectId(), 
 					flow.getFlowId(), 
 					flow.getVersion(), 
-					Status.PREPARING.getNumVal(), //zhongshu-comment 刚insert到数据库中的记录是preparing状态，preparing状态的上一个状态是READY
+					Status.PREPARING.getNumVal(), //zhongshu-comment 刚insert到数据库中的记录是preparing状态
 					submitTime, 
 					flow.getSubmitUser(), 
-					submitTime);
+					submitTime,
+					flow.getCustomTimeFlag());
+
 			connection.commit();
 			id = runner.query( //zhongshu-comment： execution id是自增的，insert完再去读取一下
 					connection, LastInsertID.LAST_INSERT_ID, new LastInsertID());
