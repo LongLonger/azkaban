@@ -69,7 +69,7 @@
                         <th>ID</th>
                         <th>Flow</th>
                         <th>Project</th>
-                        <th>custom.time.flag</th>
+                        <th>custom.time</th>
                         <th>Submitted By</th>
                         <th class="date">First Scheduled to Run</th>
                         <th class="date">Next Execution Time</th>
@@ -78,6 +78,7 @@
                         <th colspan="2" class="action ignoresort">Action</th>
                     </tr>
                     </thead>
+
                     <tbody>
                         #if(!$schedules.isEmpty())
                             #foreach($sched in $schedules)

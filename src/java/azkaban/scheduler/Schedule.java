@@ -57,7 +57,7 @@ public class Schedule{
 	private long submitTime;
 
 	//zhongshu-comment added by zhongshu
-	private String customTimeFlag;
+	private String customTimeFlag = "";
 	
 	private boolean skipPastOccurrences = true;
 	

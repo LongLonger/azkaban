@@ -70,14 +70,14 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="col-sm-2 control-label">custom.time.flag</label>
+                        <label class="col-sm-2 control-label">custom.time</label>
 
                         <div class="col-sm-3">
                             <select id="custom_time_flag" class="form-control">
-                                <option value="custom_last_hour">last.hour</option>
-                                <option value="custom_hour">hour</option>
-                                <option value="custom_last_day">last.day</option>
-                                <option value="custom_day">day</option>
+                                <option value="custom_last_hour">custom_last_hour</option>
+                                <option value="custom_hour">custom_hour</option>
+                                <option value="custom_last_day">custom_last_day</option>
+                                <option value="custom_day">custom_day</option>
                             </select>
                         </div>
                     </div>

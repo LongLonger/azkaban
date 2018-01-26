@@ -340,6 +340,7 @@ public class ScheduleServlet extends LoginAbstractAzkabanServlet {
 		List<Schedule> schedules;
 		try {
 			schedules = scheduleManager.getSchedules();
+
 		} catch (ScheduleManagerException e) {
 			// TODO Auto-generated catch block
 			throw new ServletException(e);
