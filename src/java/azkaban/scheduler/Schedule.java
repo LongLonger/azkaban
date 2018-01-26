@@ -91,7 +91,7 @@ public class Schedule{
 				nextExecTime,
 				submitTime,
 				submitUser,
-				null, //zhongshu-comment added by zhongshu
+				"", //zhongshu-comment added by zhongshu
 				null,
 				null
 				);
@@ -124,7 +124,7 @@ public class Schedule{
 				nextExecTime,
 				submitTime,
 				submitUser,
-				null, //zhongshu-comment added by zhongshu
+				"", //zhongshu-comment added by zhongshu
 				executionOptions,
 				slaOptions
 				);

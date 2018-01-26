@@ -1,5 +1,6 @@
 package azkaban;
 
+import azkaban.scheduler.Schedule;
 import azkaban.trigger.Trigger;
 import azkaban.trigger.TriggerManager;
 
@@ -14,6 +15,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class Test {
 
     public static void main(String[] args) {
+
         BlockingQueue<Trigger> triggers = new PriorityBlockingQueue<Trigger>(1, new TriggerComparator());
         Trigger t1 = new Trigger(6L);
         Trigger t5 = new Trigger(13L);

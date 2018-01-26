@@ -365,6 +365,11 @@ public class ScheduleServlet extends LoginAbstractAzkabanServlet {
 			// TODO Auto-generated catch block
 			throw new ServletException(e);
 		}
+
+		for (Schedule s : schedules) {
+			System.out.println("===zhongshu===ScheduleServlet_" + s.getCustomTimeFlag());;
+		}
+
 		page.add("schedules", schedules);
 //		
 //		List<SLA> slas = slaManager.getSLAs();
