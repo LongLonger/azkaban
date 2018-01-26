@@ -52,6 +52,9 @@ public class ExecutableNode {
 	public static final String CUSTOM_DAY = "custom_day";
 	public static final String CUSTOM_LAST_DAY = "custom_last_day";
 
+	public static final String CUSTOM_TIME = "customTime";
+	public static final String CUSTOM_TIME_FLAG = "customTimeFlag";
+
 	private String id;
 	private String type = null;
 	private Status status = Status.READY;

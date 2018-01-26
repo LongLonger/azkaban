@@ -1,6 +1,8 @@
 package azkaban.utils;
 
+import azkaban.executor.ExecutableFlowBase;
 import azkaban.executor.ExecutableNode;
+import azkaban.executor.ExecutorManagerException;
 import azkaban.flow.CommonJobProperties;
 
 import java.text.ParseException;
@@ -15,19 +17,12 @@ public class CustomDateUtil {
 
     public static void customDate(Props props, Long submitTime) {
         try {
-            Calendar cal = Calendar.getInstance();
+            if (null == submitTime || submitTime.compareTo(0L) == 0)
+                throw new Exception("error submitTime: " + submitTime);
 
-            try {
-                System.out.printf("submitTime=" + submitTime);
-                if (null != submitTime) {
-                    cal.setTimeInMillis(submitTime);
-                    System.out.println("has submit time");//zhongshu-comment 如果没有submitTime的话即不是重跑，那就使用customTimeFlag标识的那个时间
-                } else {
-                    System.out.printf("no submit time");
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(submitTime);
+
 
             SimpleDateFormat sdf1 = new SimpleDateFormat("yyyyMMdd");
             SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMddHH");
@@ -100,7 +95,6 @@ public class CustomDateUtil {
                 }
             }
 
-
             props.put(CommonJobProperties.CUSTOM_DAY, dayFormat.format(anotherCal.getTime()));
             props.put(CommonJobProperties.CUSTOM_HOUR, hourFormat.format(anotherCal.getTime()));
             props.put(CommonJobProperties.CUSTOM_MINUTE, minuteFormat.format(anotherCal.getTime()));
@@ -116,6 +110,46 @@ public class CustomDateUtil {
             throw e;
         }
 
+    }
+
+    public static String getCustomTime(long submitTime, String customTimeFlag) throws ExecutorManagerException {
+        if (null != customTimeFlag && customTimeFlag.trim().length() != 0) {
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(submitTime);
+
+            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
+            SimpleDateFormat hourFormat = new SimpleDateFormat("yyyyMMddHH");
+
+
+            if (ExecutableNode.CUSTOM_LAST_HOUR.equals(customTimeFlag)) {
+
+                cal.add(Calendar.HOUR_OF_DAY, -1);
+                return hourFormat.format(cal.getTime());
+
+            } else if (ExecutableNode.CUSTOM_LAST_DAY.equals(customTimeFlag)) {
+
+                cal.add(Calendar.DATE, -1);
+                return dayFormat.format(cal.getTime());
+
+            } else if (ExecutableNode.CUSTOM_HOUR.equals(customTimeFlag)) {
+
+                return hourFormat.format(cal.getTime());
+
+            } else if (ExecutableNode.CUSTOM_DAY.equals(customTimeFlag)) {
+
+                return dayFormat.format(cal.getTime());
+
+            } else {
+                throw new ExecutorManagerException("unknown customTimeFlag: " + customTimeFlag);
+            }
+        }
+
+        return null;
+    }
+
+    public static void setCustomTime(Props props, ExecutableFlowBase flow) {
+        props.put(CommonJobProperties.CUSTOM_TIME, flow.getCustomTime());
     }
 
     public static void main(String[] args) throws ParseException {

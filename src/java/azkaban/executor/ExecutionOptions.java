@@ -70,6 +70,7 @@ public class ExecutionOptions {
 	private String rerunExecid;
 	public static final String RERUN_EXECID = "rerunExecid";
 	public static final String CUSTOM_TIME_FLAG = "customTimeFlag";
+	public static final String CUSTOM_TIME = "customTime";
 
 	public enum FailureAction {
 		FINISH_CURRENTLY_RUNNING,

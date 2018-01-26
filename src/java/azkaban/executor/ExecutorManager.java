@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import azkaban.utils.CustomDateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
@@ -505,9 +506,15 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 			String flowId = exflow.getFlowId();
 			exflow.setSubmitUser(userId);
 
-			//zhongshu-comment question 如果是重跑任务时不新增一个execution，那么这个submit_time值不应该修改吧？？
-			exflow.setSubmitTime(System.currentTimeMillis());
-			
+			//zhongshu-comment question 如果是重跑任务时不新增一个execution，那么这个submit_time值不应该被修改，所以是update时不会update该字段
+			//zhongshu-comment 这就是submit_time
+			long submitTime = System.currentTimeMillis();
+			exflow.setSubmitTime(submitTime);
+
+			//zhongshu-comment added by zhongshu
+			String customTime = CustomDateUtil.getCustomTime(submitTime, exflow.getCustomTimeFlag());
+			exflow.setCustomTime(customTime);
+
 			List<Integer> running = getRunningFlows(projectId, flowId);
 
 			ExecutionOptions options = exflow.getExecutionOptions();
@@ -573,9 +580,10 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
 				//zhongshu-comment: 重要代码 added by zhongshu rerunExecid就是在这里传进去的
 				Pair<String, String> rerunExecIdPair = new Pair<String, String>(ExecutionOptions.RERUN_EXECID, options.getRerunExecid());
 				Pair<String, String> customTimeFlagPair = new Pair<String, String>(ExecutionOptions.CUSTOM_TIME_FLAG, exflow.getCustomTimeFlag());
+				Pair<String, String> customTimePair = new Pair<String, String>(ExecutionOptions.CUSTOM_TIME, exflow.getCustomTime());
 
 				//zhongshu-comment 关键代码，向executor server发http请求执行flow
-				callExecutorServer(reference, ConnectorParams.EXECUTE_ACTION, rerunExecIdPair, customTimeFlagPair);
+				callExecutorServer(reference, ConnectorParams.EXECUTE_ACTION, rerunExecIdPair, customTimeFlagPair, customTimePair);
 
 				runningFlows.put(exflow.getExecutionId(), new Pair<ExecutionReference, ExecutableFlow>(reference, exflow));
 				

@@ -45,6 +45,7 @@ public class ExecutableFlowBase extends ExecutableNode {
 
 	//zhongshu-comment
 	private String customTimeFlag;
+	private String customTime;
 
 	public String getCustomTimeFlag() {
 		return customTimeFlag;
@@ -52,6 +53,14 @@ public class ExecutableFlowBase extends ExecutableNode {
 
 	public void setCustomTimeFlag(String customTimeFlag) {
 		this.customTimeFlag = customTimeFlag;
+	}
+
+	public String getCustomTime() {
+		return customTime;
+	}
+
+	public void setCustomTime(String customTime) {
+		this.customTime = customTime;
 	}
 
 	public ExecutableFlowBase(Project project, Node node, Flow flow, ExecutableFlowBase parent) {

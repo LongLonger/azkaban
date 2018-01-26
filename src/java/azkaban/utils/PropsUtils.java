@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import azkaban.executor.ExecutableFlow;
 import azkaban.executor.ExecutableFlowBase;
 import azkaban.flow.CommonJobProperties;
 
@@ -216,8 +217,8 @@ public class PropsUtils {
         props.put(CommonJobProperties.FLOW_START_TIMEZONE, loadTime.toString("ZZZZ"));
 
         //zhongshu-comment added by zhongshu
-//        CustomDateUtil.customDate(props, null);
-        CustomDateUtil.customTime(props, null, flow.getCustomTimeFlag());
+        CustomDateUtil.setCustomTime(props, flow);
+        CustomDateUtil.customDate(props, ((ExecutableFlow)flow).getSubmitTime());
 
         return props;
     }

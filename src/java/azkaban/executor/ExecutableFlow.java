@@ -180,7 +180,11 @@ public class ExecutableFlow extends ExecutableFlowBase {
 		flowObj.put(PROXYUSERS_PARAM, proxyUserList);
 
 		flowObj.put(SUBMITTIME_PARAM, submitTime);
-		
+
+		//zhongshu-comment added by zhongshu
+		flowObj.put(CUSTOM_TIME, getCustomTime());
+		flowObj.put(CUSTOM_TIME_FLAG, getCustomTimeFlag());
+
 		return flowObj;
 	}
 

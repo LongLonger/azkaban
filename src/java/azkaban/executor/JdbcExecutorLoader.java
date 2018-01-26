@@ -71,7 +71,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		try {
 			uploadExecutableFlow(connection, flow, defaultEncodingType);
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			throw new ExecutorManagerException("Error uploading flow", e);
 		}
 		finally {
@@ -81,13 +81,13 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	
 	private synchronized void uploadExecutableFlow(Connection connection, 
 			ExecutableFlow flow, EncodingType encType) 
-			throws ExecutorManagerException, IOException {
+			throws ExecutorManagerException, Exception {
 		final String INSERT_EXECUTABLE_FLOW = 
 				"INSERT INTO execution_flows " +  //zhongshu-comment 往表中插入一条数据，一条数据对应一次execution
-						"(project_id, flow_id, version, status, submit_time, submit_user, update_time, custom_time_flag) " +
-						"values (?,?,?,?,?,?,?,?)";
+						"(project_id, flow_id, version, status, submit_time, submit_user, update_time, custom_time_flag, custom_time) " +
+						"values (?,?,?,?,?,?,?,?,?)";
 		QueryRunner runner = new QueryRunner();
-		long submitTime = System.currentTimeMillis();//zhongshu-comment 这就是submit_time
+		long updateTime = System.currentTimeMillis();//zhongshu-comment modified by zhongshu
 
 		System.out.println("===zhongshu=== customTimeFlag=" + flow.getCustomTimeFlag());
 
@@ -101,10 +101,11 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 					flow.getFlowId(), 
 					flow.getVersion(), 
 					Status.PREPARING.getNumVal(), //zhongshu-comment 刚insert到数据库中的记录是preparing状态
-					submitTime, 
+					flow.getSubmitTime(),
 					flow.getSubmitUser(), 
-					submitTime,
-					flow.getCustomTimeFlag());
+					updateTime,
+					flow.getCustomTimeFlag(),
+					flow.getCustomTime());
 
 			connection.commit();
 			id = runner.query( //zhongshu-comment： execution id是自增的，insert完再去读取一下
@@ -156,7 +157,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		System.out.println("===zhongshu===updateExecutableFlow_gg " + json);
 
 		System.out.println();
-		System.out.println("===zhongshu_debug=== " + json);
+		System.out.println("===zhongshu_debug_json=== " + json);
 		System.out.println();
 
 		byte[] data = null;
@@ -1180,7 +1181,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	private static class FetchSubmitTimeHandler
 			implements ResultSetHandler<ExecutableFlow> {
 		private static String SQL =
-				"SELECT submit_time,custom_time_flag FROM execution_flows WHERE exec_id=?";
+				"SELECT submit_time,custom_time_flag,custom_time FROM execution_flows WHERE exec_id=?";
 
 		@Override
 		public ExecutableFlow handle(ResultSet rs) throws SQLException {
@@ -1195,6 +1196,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 					exFlow.setSubmitTime(submitTime);
 					exFlow.setCustomTimeFlag(customTimeFlag);
+					exFlow.setCustomTime(rs.getString("custom_time"));
 				}
 				catch (Exception e) {
 					throw new SQLException("query submit_time fail! ", e);
@@ -1214,8 +1216,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				throw new Exception("query submit time fail!");
 			} else {
 
-//				CustomDateUtil.customDate(commonFlowProps, submitTime);
-				CustomDateUtil.customTime(commonFlowProps, exFlow.getSubmitTime(), exFlow.getCustomTimeFlag());
+				CustomDateUtil.setCustomTime(commonFlowProps, exFlow);
+				CustomDateUtil.customDate(commonFlowProps, exFlow.getSubmitTime());
 			}
 		}
 	}
@@ -1354,7 +1356,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 		//zhongshu-comment
 		private static String FETCH_EXECUTABLE_FLOW =
-				"SELECT exec_id, enc_type, flow_data FROM execution_flows " +
+				"SELECT exec_id, enc_type, flow_data, custom_time_flag, custom_time FROM execution_flows " +
 						"WHERE exec_id=?";
 
 		//private static String FETCH_ACTIVE_EXECUTABLE_FLOW =
@@ -1384,7 +1386,16 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				int id = rs.getInt(1);
 				int encodingType = rs.getInt(2);
 				byte[] data = rs.getBytes(3);
-				
+
+				String customTimeFlag = null;
+				String customTime = null;
+				try {
+					customTimeFlag = rs.getString("custom_time_flag");
+					customTime = rs.getString("custom_time");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
 				if (data != null) {
 					EncodingType encType = EncodingType.fromInteger(encodingType);
 					Object flowObj;
@@ -1405,6 +1416,9 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 
 						ExecutableFlow exFlow =
 								ExecutableFlow.createExecutableFlowFromObject(flowObj);
+
+						exFlow.setCustomTime(customTime);
+						exFlow.setCustomTimeFlag(customTimeFlag);
 						execFlows.add(exFlow);
 					}
 					catch (IOException e) {
