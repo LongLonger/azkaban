@@ -279,7 +279,7 @@ public class FlowRunner extends EventHandler implements Runnable {
 		// Add a bunch of common azkaban properties
 		Props commonFlowProps = PropsUtils.addCommonFlowProperties(this.globalProps, flow);
 
-		//zhongshu-comment added by zhongshu 重跑任务时使用之前的那个时间，而不是使用新的时间
+		//zhongshu-comment added by zhongshu 重跑任务时使用之前的那个submitTime时间，而不是使用新的时间
 		executorLoader.querySubmitTimeByRerunId(rerunExecid, commonFlowProps);//zhongshu-comment
 
 		if (flow.getJobSource() != null) {

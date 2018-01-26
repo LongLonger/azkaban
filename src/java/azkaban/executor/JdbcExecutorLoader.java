@@ -1392,6 +1392,9 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				try {
 					customTimeFlag = rs.getString("custom_time_flag");
 					customTime = rs.getString("custom_time");
+
+					System.out.println("===zhongshu===custom_time: " + customTime);
+					System.out.println("===zhongshu===custom_time_flag: " + customTimeFlag);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

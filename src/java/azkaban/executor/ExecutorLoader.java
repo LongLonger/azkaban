@@ -26,7 +26,7 @@ import azkaban.utils.Pair;
 import azkaban.utils.Props;
 
 public interface ExecutorLoader {
-	public void uploadExecutableFlow(ExecutableFlow flow) throws Exception;
+	public void uploadExecutableFlow(ExecutableFlow flow) throws ExecutorManagerException;
 	
 	public ExecutableFlow fetchExecutableFlow(int execId) throws ExecutorManagerException;
 	

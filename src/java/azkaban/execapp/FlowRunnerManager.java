@@ -375,7 +375,9 @@ public class FlowRunnerManager implements EventListener {
 		}
 		
 		ExecutableFlow flow = null;
-		flow = executorLoader.fetchExecutableFlow(execId);//zhongshu-comment
+
+		//zhongshu-comment 很重要的一步，将azkaban-web插入的那条记录读出来，相当于azkaban-web和azkaban-exec通过数据库来通讯
+		flow = executorLoader.fetchExecutableFlow(execId);
 		if (flow == null) {
 			throw new ExecutorManagerException("Error loading flow with exec " + execId);
 		}
@@ -410,7 +412,7 @@ public class FlowRunnerManager implements EventListener {
 			}
 		}
 
-		flow.setCustomTimeFlag(req.getParameter(ExecutionOptions.CUSTOM_TIME_FLAG));
+//		flow.setCustomTimeFlag(req.getParameter(ExecutionOptions.CUSTOM_TIME_FLAG));
 		//zhongshu-comment FlowRunner是一个线程，里面的run()方法就是具体执行flow的代码了
 		FlowRunner runner = new FlowRunner(flow, executorLoader, projectLoader, jobtypeManager);
 		runner.setFlowWatcher(watcher)
@@ -463,6 +465,8 @@ public class FlowRunnerManager implements EventListener {
 		 */
 		flowQueue.add(runner);
 	}
+
+
 	//zhongshu-comment
 	private void setupFlow(ExecutableFlow flow) throws ExecutorManagerException {
 		int execId = flow.getExecutionId();
