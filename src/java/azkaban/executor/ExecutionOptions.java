@@ -61,6 +61,8 @@ public class ExecutionOptions {
 	private Integer queueLevel = 0;
 	private String concurrentOption = CONCURRENT_OPTION_IGNORE;
 	private String mailCreator = DefaultMailCreator.DEFAULT_MAIL_CREATOR;
+
+	//zhongshu-comment execution临时参数就放在这个map中
 	private Map<String, String> flowParameters = new HashMap<String, String>();
 
 	/**

@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import azkaban.flow.CommonJobProperties;
 import azkaban.utils.CustomDateUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.client.HttpClient;
@@ -558,6 +559,20 @@ public class ExecutorManager extends EventHandler implements ExecutorManagerAdap
                 //zhongshu-comment added by zhongshu
                 String customTime = CustomDateUtil.getCustomTime(submitTime, exflow.getCustomTimeFlag());
                 exflow.setCustomTime(customTime);
+
+                /*
+                zhongshu-comment added by zhongshu
+                非Schedule任务设置了custom.time参数，将该参数写入数据库。
+                null == exflow.getCustomTimeFlag()即代表非Schedule任务，是手动跑的临时任务
+                 */
+                if (null == exflow.getCustomTimeFlag()
+                        && exflow.getExecutionOptions().getFlowParameters().containsKey(CommonJobProperties.CUSTOM_TIME)) {
+                    String tmpCustomTime = exflow.getExecutionOptions().getFlowParameters().get(CommonJobProperties.CUSTOM_TIME);
+                    exflow.setCustomTime(tmpCustomTime);
+                }
+
+                System.out.println("==zhongshu==ExecutorManager_customTime: " + customTime);
+                System.out.println("==zhongshu==ExecutorManager_getCustomTimeFlag(): " + exflow.getCustomTime());
 
                 executorLoader.uploadExecutableFlow(exflow);//zhongshu-comment 往execution_flows表新插入一条execution执行记录
                 System.out.println("===zhongshu=== " + "第一次跑");

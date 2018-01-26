@@ -89,7 +89,8 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		QueryRunner runner = new QueryRunner();
 		long updateTime = System.currentTimeMillis();//zhongshu-comment modified by zhongshu
 
-		System.out.println("===zhongshu=== customTimeFlag=" + flow.getCustomTimeFlag());
+		System.out.println("===zhongshu===JdbcExecutorLoader_customTimeFlag: " + flow.getCustomTimeFlag());
+		System.out.println("===zhongshu===JdbcExecutorLoader_getCustomTimeFlag: " + flow.getCustomTime());
 
 		long id;
 		try {
