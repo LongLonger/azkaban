@@ -14,104 +14,115 @@
  * the License.
 *#
 
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
 
-#parse ("azkaban/webapp/servlet/velocity/style.vm")
-#parse ("azkaban/webapp/servlet/velocity/javascript.vm")
+    #parse ("azkaban/webapp/servlet/velocity/style.vm")
+    #parse ("azkaban/webapp/servlet/velocity/javascript.vm")
 
-		<link rel="stylesheet" type="text/css" href="${context}/css/bootstrap-datetimepicker.css" />
-		
-		<script type="text/javascript" src="${context}/js/moment.min.js"></script>
-		<script type="text/javascript" src="${context}/js/bootstrap-datetimepicker.min.js"></script>
-		<script type="text/javascript" src="${context}/js/azkaban/view/table-sort.js"></script>
-		<script type="text/javascript" src="${context}/js/azkaban/view/schedule-sla.js"></script>
-		<script type="text/javascript" src="${context}/js/azkaban/view/scheduled.js"></script>
-		<script type="text/javascript" src="${context}/js/azkaban/util/schedule.js"></script>
-		<script type="text/javascript">
-			var contextURL = "${context}";
-			var currentTime = ${currentTime};
-			var timezone = "${timezone}";
-			var errorMessage = null;
-			var successMessage = null;
-		</script>
-	</head>
-	<body>
+    <link rel="stylesheet" type="text/css" href="${context}/css/bootstrap-datetimepicker.css"/>
 
-#set ($current_page="schedule")
-#parse ("azkaban/webapp/servlet/velocity/nav.vm")
+    <script type="text/javascript" src="${context}/js/moment.min.js"></script>
+    <script type="text/javascript" src="${context}/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="${context}/js/azkaban/view/table-sort.js"></script>
+    <script type="text/javascript" src="${context}/js/azkaban/view/schedule-sla.js"></script>
+    <script type="text/javascript" src="${context}/js/azkaban/view/scheduled.js"></script>
+    <script type="text/javascript" src="${context}/js/azkaban/util/schedule.js"></script>
+    <script type="text/javascript">
+        var contextURL = "${context}";
+        var currentTime = ${currentTime};
+        var timezone = "${timezone}";
+        var errorMessage = null;
+        var successMessage = null;
+    </script>
+</head>
+<body>
 
-#if ($errorMsg)
-  #parse ("azkaban/webapp/servlet/velocity/errormsg.vm")
-#else
+    #set ($current_page="schedule")
+    #parse ("azkaban/webapp/servlet/velocity/nav.vm")
 
-	## Page header.
+    #if ($errorMsg)
+        #parse ("azkaban/webapp/servlet/velocity/errormsg.vm")
+    #else
 
-		<div class="az-page-header">
-			<div class="container-full">
-        <h1><a href="${context}/schedule">Scheduled Flows</a></h1>
-			</div>
-		</div>
+    ## Page header.
 
-	## Page content.
+    <div class="az-page-header">
+        <div class="container-full">
+            <h1><a href="${context}/schedule">Scheduled Flows</a></h1>
+        </div>
+    </div>
 
-		<div class="container-full">
+    ## Page content.
 
-  #parse ("azkaban/webapp/servlet/velocity/alerts.vm")
-      
-      <div class="row">
-				<div class="col-xs-12">
-          <table id="scheduledFlowsTbl" class="table table-striped table-condensed table-bordered table-hover">
-            <thead>
-              <tr>
-                <!--th class="execid">Execution Id</th-->
-                <th>ID</th>
-                <th>Flow</th>
-                <th>Project</th>
-                <th>Submitted By</th>
-                <th class="date">First Scheduled to Run</th>
-                <th class="date">Next Execution Time</th>
-                <th class="date">Repeats Every</th>
-                <th>Has SLA</th>
-                <th colspan="2" class="action ignoresort">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-	#if(!$schedules.isEmpty())
-		#foreach($sched in $schedules)
-              <tr>
-                <td>${sched.scheduleId}</td>
-                <td class="tb-name">
-                  <a href="${context}/manager?project=${sched.projectName}&flow=${sched.flowName}">${sched.flowName}</a>
-                </td>
-                <td>
-                  <a href="${context}/manager?project=${sched.projectName}">${sched.projectName}</a>
-                </td>
-                <td>${sched.submitUser}</td>
-                <td>$utils.formatDateTime(${sched.firstSchedTime})</td>
-                <td>$utils.formatDateTime(${sched.nextExecTime})</td>
-                <td>$utils.formatPeriod(${sched.period})</td>
-                <td>#if(${sched.slaOptions}) true #else false #end</td>
-                <td><button type="button" id="removeSchedBtn" class="btn btn-sm btn-danger" onclick="removeSched(${sched.scheduleId})" >Remove Schedule</button></td>
-                <td><button type="button" id="addSlaBtn" class="btn btn-sm btn-primary" onclick="slaView.initFromSched(${sched.scheduleId}, '${sched.flowName}')" >Set SLA</button></td>
-              </tr>
-		#end
-	#else
-              <tr>
-                <td colspan="10">No scheduled flow found.</td>
-              </tr>
-	#end
-            </tbody>
-          </table>
-				</div><!-- /col-xs-12 -->
-			</div><!-- /row -->
+    <div class="container-full">
 
-  ## Set SLA modal.
-  
-	#parse ("azkaban/webapp/servlet/velocity/slapanel.vm")
+        #parse ("azkaban/webapp/servlet/velocity/alerts.vm")
 
-		</div>
-#end
-	</body>
+        <div class="row">
+            <div class="col-xs-12">
+                <table id="scheduledFlowsTbl" class="table table-striped table-condensed table-bordered table-hover">
+                    <thead>
+                    <tr>
+                        <!--th class="execid">Execution Id</th-->
+                        <th>ID</th>
+                        <th>Flow</th>
+                        <th>Project</th>
+                        <th>custom.time.flag</th>
+                        <th>Submitted By</th>
+                        <th class="date">First Scheduled to Run</th>
+                        <th class="date">Next Execution Time</th>
+                        <th class="date">Repeats Every</th>
+                        <th>Has SLA</th>
+                        <th colspan="2" class="action ignoresort">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        #if(!$schedules.isEmpty())
+                            #foreach($sched in $schedules)
+                            <tr>
+                                <td>${sched.scheduleId}</td>
+                                <td class="tb-name">
+                                    <a href="${context}/manager?project=${sched.projectName}&flow=${sched.flowName}">${sched.flowName}</a>
+                                </td>
+                                <td>
+                                    <a href="${context}/manager?project=${sched.projectName}">${sched.projectName}</a>
+                                </td>
+                                <td>${sched.customTimeFlag}</td>
+                                <td>${sched.submitUser}</td>
+                                <td>$utils.formatDateTime(${sched.firstSchedTime})</td>
+                                <td>$utils.formatDateTime(${sched.nextExecTime})</td>
+                                <td>$utils.formatPeriod(${sched.period})</td>
+                                <td>#if(${sched.slaOptions}) true #else false #end</td>
+                                <td>
+                                    <button type="button" id="removeSchedBtn" class="btn btn-sm btn-danger"
+                                            onclick="removeSched(${sched.scheduleId})">Remove Schedule
+                                    </button>
+                                </td>
+                                <td>
+                                    <button type="button" id="addSlaBtn" class="btn btn-sm btn-primary"
+                                            onclick="slaView.initFromSched(${sched.scheduleId}, '${sched.flowName}')">
+                                        Set SLA
+                                    </button>
+                                </td>
+                            </tr>
+                            #end
+                        #else
+                        <tr>
+                            <td colspan="10">No scheduled flow found.</td>
+                        </tr>
+                        #end
+                    </tbody>
+                </table>
+            </div><!-- /col-xs-12 -->
+        </div><!-- /row -->
+
+    ## Set SLA modal.
+
+        #parse ("azkaban/webapp/servlet/velocity/slapanel.vm")
+
+    </div>
+    #end
+</body>
 </html>
