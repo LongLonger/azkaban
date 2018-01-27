@@ -149,7 +149,7 @@ public class HistoryServlet extends LoginAbstractAzkabanServlet {
 					e.printStackTrace();
 				}
 		}
-		page.add("flowHistory", history);
+		page.add("flowHistory", history);//zhongshu-comment 这里就是将每一行历史记录传到页面的代码
 		page.add("size", pageSize);
 		page.add("page", pageNum);
 		//keep the search terms so that we can navigate to later pages

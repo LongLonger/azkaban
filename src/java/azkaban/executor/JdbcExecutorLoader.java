@@ -1353,7 +1353,7 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 	private static class FetchExecutableFlows 
 			implements ResultSetHandler<List<ExecutableFlow>> {
 		private static String FETCH_BASE_EXECUTABLE_FLOW_QUERY = 
-				"SELECT exec_id, enc_type, flow_data FROM execution_flows ";
+				"SELECT exec_id, enc_type, custom_time flow_data FROM execution_flows ";
 
 		//zhongshu-comment
 		private static String FETCH_EXECUTABLE_FLOW =
@@ -1365,10 +1365,10 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 		//			"FROM execution_flows ex " +
 		//			"INNER JOIN active_executing_flows ax ON ex.exec_id = ax.exec_id";
 		private static String FETCH_ALL_EXECUTABLE_FLOW_HISTORY = 
-				"SELECT exec_id, enc_type, flow_data FROM execution_flows " +
+				"SELECT exec_id, enc_type, flow_data, custom_time FROM execution_flows " +
 						"ORDER BY exec_id DESC LIMIT ?, ?";
 		private static String FETCH_EXECUTABLE_FLOW_HISTORY = 
-				"SELECT exec_id, enc_type, flow_data FROM execution_flows " +
+				"SELECT exec_id, enc_type, flow_data, custom_time FROM execution_flows " +
 						"WHERE project_id=? AND flow_id=? " +
 						"ORDER BY exec_id DESC LIMIT ?, ?";
 		private static String FETCH_EXECUTABLE_FLOW_BY_STATUS = 
@@ -1392,10 +1392,14 @@ public class JdbcExecutorLoader extends AbstractJdbcLoader
 				String customTime = null;
 				try {
 					customTimeFlag = rs.getString("custom_time_flag");
-					customTime = rs.getString("custom_time");
-
-					System.out.println("===zhongshu===custom_time: " + customTime);
 					System.out.println("===zhongshu===custom_time_flag: " + customTimeFlag);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+
+				try {
+					customTime = rs.getString("custom_time");
+					System.out.println("===zhongshu===custom_time: " + customTime);
 				} catch (SQLException e) {
 					e.printStackTrace();
 				}

@@ -115,6 +115,11 @@ azkaban.ExecutionsView = Backbone.View.extend({
 			tdId.appendChild(execA);
 			row.appendChild(tdId);
 
+			//zhongshu-comment added by zhongshu
+            var customTimeElement = document.createElement("td");
+			$(customTimeElement).text(executions[i].customTime)
+			row.appendChild(customTimeElement);
+
 			var tdUser = document.createElement("td");
 			$(tdUser).text(executions[i].submitUser);
 			row.appendChild(tdUser);

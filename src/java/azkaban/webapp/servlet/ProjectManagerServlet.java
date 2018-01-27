@@ -123,7 +123,7 @@ public class ProjectManagerServlet extends LoginAbstractAzkabanServlet {
             } else if (hasParam(req, "job")) {
                 handleJobPage(req, resp, session);
             } else if (hasParam(req, "flow")) {
-                handleFlowPage(req, resp, session);
+                handleFlowPage(req, resp, session);//zhongshu-comment 渲染那个executions页面
             } else if (hasParam(req, "delete")) {
                 handleRemoveProject(req, resp, session);
             } else {
@@ -381,6 +381,7 @@ public class ProjectManagerServlet extends LoginAbstractAzkabanServlet {
             flowInfo.put("startTime", flow.getStartTime());
             flowInfo.put("endTime", flow.getEndTime());
             flowInfo.put("submitUser", flow.getSubmitUser());
+            flowInfo.put("customTime", flow.getCustomTime()); //zhongshu-comment added by zhongshu
 
             history.add(flowInfo);
         }
@@ -1176,6 +1177,7 @@ public class ProjectManagerServlet extends LoginAbstractAzkabanServlet {
         page.render();
     }
 
+    //zhongshu-comment
     private void handleFlowPage(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException {
         Page page = newPage(req, resp, session, "azkaban/webapp/servlet/velocity/flowpage.vm");
         String projectName = getParam(req, "project");
